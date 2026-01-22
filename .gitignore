@@ -1,0 +1,101 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.ctxt
+.mtj.tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# IDE - Eclipse
+.classpath
+.project
+.settings/
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# IDE - VS Code
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Papyrus
+*.uml
+*.notation
+*.di
+*.aird
+*.ecore
+!model/*.uml
+!model/*.notation
+!model/*.di
+
+# Generated code (keep snapshots, ignore build artifacts)
+generated/*/target/
+generated/*/build/
+generated/*/.classpath
+generated/*/.project
+
+# Documentation build artifacts
+docs/report/*.aux
+docs/report/*.log
+docs/report/*.out
+docs/report/*.toc
+docs/report/*.fls
+docs/report/*.fdb_latexmk
+docs/report/*.synctex.gz
+
+# Config files with sensitive data (if any)
+config/local.properties
+*.key
+*.pem
+
+# SonarQube (keep badge, ignore analysis files)
+.sonar/
+.scannerwork/
+
+secrets/
