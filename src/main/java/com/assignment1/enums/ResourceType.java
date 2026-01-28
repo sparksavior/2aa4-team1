@@ -2,8 +2,8 @@ package com.assignment1.enums;
 
 public enum ResourceType {
     BRICK,
-    LUMBER,
+    WOOD,
     ORE,
-    GRAIN,
-    WOOL
+    WHEAT,
+    SHEEP
 }

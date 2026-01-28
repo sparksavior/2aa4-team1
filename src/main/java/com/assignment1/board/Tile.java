@@ -2,19 +2,24 @@ package com.assignment1.board;
 
 import com.assignment1.enums.TerrainType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Tile {
 
-    private String id;
+    private int id;
     private TerrainType terrain;
     private int productionNumber;
+    private List<Intersection> intersections;
 
-    public Tile(String id, TerrainType terrain, int productionNumber) {
+    public Tile(int id, TerrainType terrain, int productionNumber) {
         this.id = id;
         this.terrain = terrain;
         this.productionNumber = productionNumber;
+        this.intersections = new ArrayList<>();
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -24,6 +29,10 @@ public class Tile {
 
     public int getProductionNumber() {
         return productionNumber;
+    }
+
+    public List<Intersection> getIntersections() {
+        return intersections;
     }
     
 }

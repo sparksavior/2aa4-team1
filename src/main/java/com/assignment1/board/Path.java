@@ -7,19 +7,19 @@ import java.util.List;
 
 public class Path {
 
-    private String id;
+    private int id;
     private Intersection endpointA;
     private Intersection endpointB;
     private Road occupant;
 
-    public Path(String id, Intersection a, Intersection b) {
+    public Path(int id, Intersection a, Intersection b) {
         this.id = id;
         this.endpointA = a;
         this.endpointB = b;
         this.occupant = null;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 

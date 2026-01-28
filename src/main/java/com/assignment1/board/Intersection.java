@@ -7,17 +7,19 @@ import java.util.List;
 
 public class Intersection {
 
-    private String id;
+    private int id;
     private Building occupant;
     private List<Intersection> neighbors;
+    private List<Tile> tiles;
 
-    public Intersection(String id) {
+    public Intersection(int id) {
         this.id = id;
         this.occupant = null;
         this.neighbors = new ArrayList<>();
+        this.tiles = new ArrayList<>();
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -31,5 +33,9 @@ public class Intersection {
 
     public List<Intersection> getNeighbors() {
         return neighbors;
+    }
+
+    public List<Tile> getTiles() {
+        return tiles;
     }
 }
