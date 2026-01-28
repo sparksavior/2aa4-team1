@@ -1,0 +1,71 @@
+#Task 2 Translation Notes for Papyrus Code-Gen
+
+## Context
+This documents observations from generating Java code using Papyrus 
+from the finalized UML model for Catan Game.
+The generated code was produced using Papyrus Java code generation and committed
+a snapshot to /generated/papyrus
+
+##1. Class and Enum Mapping (Works well)
+
+### Classes
+UML classes (e.g., `Board`, `Tile`, `Player`, `Intersection`) are translated
+into corresponding Java classes with matching names.
+
+Each class contains:
+- Fields for UML attributes
+- Methods corresponding to UML operations
+
+This mapping is consistent and preserves the UML
+
+###Enumerations
+UML enumerations are translated cleanly into Java enum types with no manual correction required
+
+##2. Associations (Works Partially)
+
+###1-Many associations
+UML multiplicities like Tile[*] or Intersecton[*] are translated into arrays
+The problem here is that a collection like List<T> would work better than Arrays as they are more flexible
+
+##3. Constructors (Broken)
+
+Papyrus generates constructors as void methods which are Java errors
+- public void Building(tiles.Player.Player owner, int victoryPoints)
+- public void Board(tiles.GameConfig.GameConfig config) 
+instead of proper Java constructors like 
+- public Building(tiles.Player.Player owner, int victoryPoints)
+- public Board(tiles.GameConfig.GameConfig config) 
+This breaks Java semantics/rules. This issue consistently appears in all classes
+
+##4. Nested Classes (Unnecessary/Broken)
+
+Several classes contain duplicated inner classes:
+public class Board {
+	/**
+	 * 
+	 */
+	public class Board {
+	};
+
+	/**
+	 * 
+	 */
+	public class Board {
+	};
+}
+
+This is not meaningful in Java and is not illustrated in the UML.
+
+
+##5. Primitive Types
+
+UML primitive types such as EInt and EString are present in Java code which are not valid Java data types (int, String)
+This requires a manual cleanup
+
+##6. Methods (Works Well)
+
+All generated methods are empty but are accurately created by Papyrus
+
+##7. Inheritance
+
+Inheritance rules are properly translated with subclasses accurately extending superclasses
