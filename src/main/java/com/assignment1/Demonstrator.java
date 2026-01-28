@@ -5,7 +5,7 @@ import com.assignment1.core.Simulator;
 
 public class Demonstrator {
     public static void main(String[] args) {
-        GameConfig config = new GameConfig(100, 10);
+        GameConfig config = GameConfig.fromFile("config/config.txt");
         Simulator simulator = new Simulator(config);
         simulator.run();
     }
