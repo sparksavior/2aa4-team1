@@ -1,10 +1,10 @@
 package com.assignment1.enums;
 
 public enum TerrainType {
+    HILLS,
     FOREST,
-    HILL,
-    PASTURE,
-    FIELD,
-    MOUNTAIN,
+    MOUNTAINS,
+    FIELDS,
+    PASTURES,
     DESERT
 }
