@@ -14,9 +14,14 @@ public class Simulator {
     private int currentRound;
 
     public Simulator(GameConfig config) {
+        this.config = config;
+        this.board = null;
+        this.players = null;
+        this.currentRound = 0;
     }
 
     public void run() {
+        System.out.println("simulator started");
     }
 
     public void playRound() {

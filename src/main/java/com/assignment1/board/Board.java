@@ -3,6 +3,7 @@ package com.assignment1.board;
 import com.assignment1.config.GameConfig;
 import com.assignment1.player.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
@@ -12,6 +13,9 @@ public class Board {
     private List<Path> paths;
 
     public Board(GameConfig config) {
+        this.tiles = new ArrayList<>();
+        this.intersections = new ArrayList<>();
+        this.paths = new ArrayList<>();
     }
 
     public void setup() {
@@ -30,11 +34,11 @@ public class Board {
     }
 
     public List<Intersection> getIntersections() {
-        return null;
+        return intersections;
     }
 
     public List<Path> getPaths() {
-        return null;
+        return paths;
     }
 
     public void produceResources(int diceRoll, List<Player> players) {
