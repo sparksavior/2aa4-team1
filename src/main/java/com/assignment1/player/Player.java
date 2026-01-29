@@ -42,6 +42,7 @@ public class Player {
     }
 
     public void addResources(ResourceType type, int amount) {
+        resourceHand.put(type, resourceHand.getOrDefault(type, 0) + amount);
     }
 
     public void removeResources(ResourceType type, int amount) {

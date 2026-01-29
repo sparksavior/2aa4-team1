@@ -1,11 +1,15 @@
 package com.assignment1.board;
 
 import com.assignment1.config.GameConfig;
+import com.assignment1.enums.ResourceType;
 import com.assignment1.enums.TerrainType;
+import com.assignment1.pieces.Building;
 import com.assignment1.player.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class Board {
@@ -13,15 +17,18 @@ public class Board {
     private List<Tile> tiles;
     private List<Intersection> intersections;
     private List<Path> paths;
+    private Map<Integer, List<Tile>> tilesByProductionNumber;
 
     public Board(GameConfig config) {
         this.tiles = new ArrayList<>();
         this.intersections = new ArrayList<>();
         this.paths = new ArrayList<>();
+        this.tilesByProductionNumber = new HashMap<>();
     }
 
     public void setup() {
         setupTiles();
+        indexTilesByProductionNumber();
         setupIntersections();
         setupPaths();
         connectTilesToIntersections();
@@ -52,6 +59,20 @@ public class Board {
         tiles.add(new Tile(16, TerrainType.DESERT, 0)); // no production
         tiles.add(new Tile(17, TerrainType.FOREST, 2)); // wood
         tiles.add(new Tile(18, TerrainType.PASTURES, 10)); // sheep
+    }
+
+    private void indexTilesByProductionNumber() {
+        tilesByProductionNumber.clear();
+
+        for (Tile tile : tiles) {
+            int production = tile.getProductionNumber();
+            if (production <= 0) {
+                continue;
+            }
+            tilesByProductionNumber
+                .computeIfAbsent(production, key -> new ArrayList<>())
+                .add(tile);
+        }
     }
 
     private void setupIntersections() {
@@ -179,5 +200,44 @@ public class Board {
     }
 
     public void produceResources(int diceRoll, List<Player> players) {
+
+        List<Tile> matchingTiles = tilesByProductionNumber.get(diceRoll);
+        if (matchingTiles == null) return;
+
+        for (Tile tile : matchingTiles) {
+            ResourceType resourceType = terrainToResource(tile.getTerrain());
+            if (resourceType == null) {
+                continue; // DESERT or unknown terrain
+            }
+
+            // distribute resources to players with buildings on this tile's intersections
+            for (Intersection intersection : tile.getIntersections()) {
+                Building building = intersection.getOccupant();
+                if (building != null) {
+                    Player owner = building.getOwner();
+                    int amount = building.getVictoryPoints(); // Settlement = 1, City = 2
+                    owner.addResources(resourceType, amount);
+                }
+            }
+        }
+    }
+    
+    private ResourceType terrainToResource(TerrainType terrain) {
+        switch (terrain) {
+            case HILLS:
+                return ResourceType.BRICK;
+            case FOREST:
+                return ResourceType.WOOD;
+            case MOUNTAINS:
+                return ResourceType.ORE;
+            case FIELDS:
+                return ResourceType.WHEAT;
+            case PASTURES:
+                return ResourceType.SHEEP;
+            case DESERT:
+                return null; // no resource production
+            default:
+                return null;
+        }
     }
 }
