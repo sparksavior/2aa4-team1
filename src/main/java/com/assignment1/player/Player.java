@@ -12,6 +12,7 @@ import com.assignment1.pieces.Building;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Player {
 
@@ -71,40 +72,55 @@ public class Player {
         return true;
     }
 
-    public void makeMove(Board board) {
+    public String makeMove(Board board) {
 
-        int totalCards = 0;
+        if (getTotalCards() <= 7) return "no-op";
+
+        return tryUpgradeCity(board)
+            .or(() -> tryBuildSettlement(board))
+            .or(() -> tryBuildRoad(board))
+            .orElse("no-op");
+    }
+
+    private int getTotalCards() {
+        int total = 0;
         for (ResourceType type : ResourceType.values()) {
-            totalCards += resourceHand.getOrDefault(type, 0);
+            total += resourceHand.getOrDefault(type, 0);
         }
-        if (totalCards <= 7) {
-            return; // only build when holding > 7 cards
-        }
+        return total;
+    }
 
-        // try to upgrade a settlement to a city
+    private Optional<String> tryUpgradeCity(Board board) {
         for (Intersection intersection : board.getIntersections()) {
             Building occupant = intersection.getOccupant();
             // currently holding a Settlement
             if (occupant instanceof Settlement && occupant.getOwner() == this) {
-                if (upgradeCity(intersection)) return;
+                if (upgradeCity(intersection)) {
+                    return Optional.of("upgrade city");
+                }
             }
         }
+        return Optional.empty();
+    }
 
-        // try to build a new settlement
+    private Optional<String> tryBuildSettlement(Board board) {
         for (Intersection intersection : board.getIntersections()) {
             // no building on this intersection
-            if (intersection.getOccupant() == null) {
-                if (buildSettlement(intersection)) return;
+            if (intersection.getOccupant() == null && buildSettlement(intersection)) {
+                return Optional.of("build settlement");
             }
         }
+        return Optional.empty(); // no settlement to build
+    }
 
-        // try to build a road
+    private Optional<String> tryBuildRoad(Board board) {
         for (Path path : board.getPaths()) {
             // no building on this path
-            if (path.getOccupant() == null) {
-                if (buildRoad(path)) return;
+            if (path.getOccupant() == null && buildRoad(path)) {
+                return Optional.of("build road");
             }
         }
+        return Optional.empty(); // no road to build
     }
 
     public boolean buildRoad(Path path) {

@@ -62,7 +62,8 @@ public class Simulator {
     }
 
     public void takeTurn(Player player) {
-        System.out.println("round " + currentRound + " / player " + player.getId() + ": no-op");
+        String action = player.makeMove(board);
+        System.out.println(currentRound + " / " + player.getId() + ": " + action);
     }
 
     public boolean isFinished() {
