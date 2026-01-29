@@ -105,8 +105,7 @@ public class Player {
 
     private Optional<String> tryBuildSettlement(Board board) {
         for (Intersection intersection : board.getIntersections()) {
-            // no building on this intersection
-            if (intersection.getOccupant() == null && buildSettlement(intersection)) {
+            if (intersection.getOccupant() == null && buildSettlement(board, intersection)) {
                 return Optional.of("build settlement");
             }
         }
@@ -115,28 +114,22 @@ public class Player {
 
     private Optional<String> tryBuildRoad(Board board) {
         for (Path path : board.getPaths()) {
-            // no building on this path
-            if (path.getOccupant() == null && buildRoad(path)) {
+            if (path.getOccupant() == null && buildRoad(board, path)) {
                 return Optional.of("build road");
             }
         }
         return Optional.empty(); // no road to build
     }
 
-    public boolean buildRoad(Path path) {
-
-        // already has a road
-        if (path.getOccupant() != null) {
-            return false;
-        }
+    public boolean buildRoad(Board board, Path path) {
+        if (path.getOccupant() != null) return false;
+        if (!board.canPlaceRoad(path, this)) return false;
 
         Map<ResourceType, Integer> cost = new HashMap<>();
         cost.put(ResourceType.BRICK, 1);
         cost.put(ResourceType.WOOD, 1);
 
-        if (!canAfford(cost)) {
-            return false;
-        }
+        if (!canAfford(cost)) return false;
 
         for (Map.Entry<ResourceType, Integer> entry : cost.entrySet()) {
             removeResources(entry.getKey(), entry.getValue());
@@ -148,12 +141,9 @@ public class Player {
         return true;
     }
 
-    public boolean buildSettlement(Intersection intersection) {
-
-        // already has a building
-        if (intersection.getOccupant() != null) {
-            return false;
-        }
+    public boolean buildSettlement(Board board, Intersection intersection) {
+        if (intersection.getOccupant() != null) return false;
+        if (!board.canPlaceSettlement(intersection, this)) return false;
 
         Map<ResourceType, Integer> cost = new HashMap<>();
         cost.put(ResourceType.BRICK, 1);
@@ -161,9 +151,7 @@ public class Player {
         cost.put(ResourceType.WHEAT, 1);
         cost.put(ResourceType.SHEEP, 1);
 
-        if (!canAfford(cost)) {
-            return false;
-        }
+        if (!canAfford(cost)) return false;
 
         for (Map.Entry<ResourceType, Integer> entry : cost.entrySet()) {
             removeResources(entry.getKey(), entry.getValue());

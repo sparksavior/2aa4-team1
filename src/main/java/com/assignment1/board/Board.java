@@ -4,6 +4,7 @@ import com.assignment1.config.GameConfig;
 import com.assignment1.enums.ResourceType;
 import com.assignment1.enums.TerrainType;
 import com.assignment1.pieces.Building;
+import com.assignment1.pieces.Road;
 import com.assignment1.player.Player;
 
 import java.util.ArrayList;
@@ -18,12 +19,14 @@ public class Board {
     private List<Intersection> intersections;
     private List<Path> paths;
     private Map<Integer, List<Tile>> tilesByProductionNumber;
+    private Map<Intersection, List<Path>> pathsByIntersection;
 
     public Board(GameConfig config) {
         this.tiles = new ArrayList<>();
         this.intersections = new ArrayList<>();
         this.paths = new ArrayList<>();
         this.tilesByProductionNumber = new HashMap<>();
+        this.pathsByIntersection = new HashMap<>();
     }
 
     public void setup() {
@@ -87,8 +90,13 @@ public class Board {
         // helper to add path if it doesn't already exist
         BiConsumer<Integer, Integer> addPath = (a, b) -> {
             if (a < intersections.size() && b < intersections.size()) {
-                paths.add(new Path(pathId[0], intersections.get(a), intersections.get(b)));
-                connectNeighbors(intersections.get(a), intersections.get(b));
+                Intersection ia = intersections.get(a);
+                Intersection ib = intersections.get(b);
+                Path p = new Path(pathId[0], ia, ib);
+                paths.add(p);
+                pathsByIntersection.computeIfAbsent(ia, k -> new ArrayList<>()).add(p);
+                pathsByIntersection.computeIfAbsent(ib, k -> new ArrayList<>()).add(p);
+                connectNeighbors(ia, ib);
                 pathId[0]++;
             }
         };
@@ -197,6 +205,62 @@ public class Board {
 
     public List<Path> getPaths() {
         return paths;
+    }
+
+    /**
+     * Road connectivity (R1.6): path must be adjacent to this player's existing road
+     * or to an intersection with this player's settlement/city.
+     */
+    public boolean canPlaceRoad(Path path, Player player) {
+
+        List<Intersection> endpoints = path.getEndpoints();
+        if (endpoints.size() < 2) return false; // defensive checking
+
+        Intersection a = endpoints.get(0);
+        Intersection b = endpoints.get(1);
+
+        // early exit: one of the endpoints has a building owned by the player
+        if (hasPlayerBuilding(a, player) || hasPlayerBuilding(b, player)) {
+            return true;
+        }
+
+        // check all paths that incident to the candidate path's 2 endpoints
+        for (Path p : pathsAt(a)) {
+            if (p == path) continue;
+            Road road = p.getOccupant();
+            if (road != null && road.getOwner() == player) return true;
+        }
+        for (Path p : pathsAt(b)) {
+            if (p == path) continue;
+            Road road = p.getOccupant();
+            if (road != null && road.getOwner() == player) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Settlement distance rule (R1.6): no building on any neighbor intersection.
+     */
+    public boolean canPlaceSettlement(Intersection intersection, Player player) {
+
+        if (intersection.getOccupant() != null) return false;
+
+        for (Intersection neighbor : intersection.getNeighbors()) {
+            if (neighbor.getOccupant() != null) return false;
+        }
+        return true;
+    }
+
+    // return true if the intersection has a building owned by the player
+    private boolean hasPlayerBuilding(Intersection intersection, Player player) {
+        Building b = intersection.getOccupant();
+        return b != null && b.getOwner() == player;
+    }
+
+    // return all paths at the intersection
+    private List<Path> pathsAt(Intersection intersection) {
+        List<Path> at = pathsByIntersection.get(intersection);
+        return at != null ? at : List.of();
     }
 
     public void produceResources(int diceRoll, List<Player> players) {
