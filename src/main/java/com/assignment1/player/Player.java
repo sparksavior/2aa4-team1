@@ -188,7 +188,13 @@ public class Player {
         return true;
     }
 
-    public void discardHalfHand() {
+    public void handleDiceRoll7() {
+        if (getTotalCards() > 7) {
+            discardHalfHand();
+        }
+    }
+
+    private void discardHalfHand() {
         int total = 0;
         for (ResourceType type : ResourceType.values()) {
             total += resourceHand.getOrDefault(type, 0);

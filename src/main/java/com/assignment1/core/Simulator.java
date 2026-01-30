@@ -50,6 +50,10 @@ public class Simulator {
         int diceRoll = rollDice();
         if (diceRoll != 7) {
             distributeResources(diceRoll);
+        } else {
+            for (Player player : players) {
+                player.handleDiceRoll7();
+            }
         }
 
         for (Player player : players) {
