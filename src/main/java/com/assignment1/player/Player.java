@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/** Represents a player with resources, buildings, and agent behavior. */
 public class Player {
 
     private int id;
@@ -24,6 +25,7 @@ public class Player {
     private int settlementsBuilt;
     private int citiesBuilt;
 
+    /** Creates a player with the given ID and color. */
     public Player(int id, PlayerColor color) {
         this.id = id;
         this.color = color;
@@ -34,6 +36,7 @@ public class Player {
         this.citiesBuilt = 0;
     }
 
+    /** Creates a player with an initial settlement at the given intersection. */
     public Player(int id, PlayerColor color, Intersection initialSettlement) {
         this.id = id;
         this.color = color;
@@ -50,22 +53,27 @@ public class Player {
         }
     }
 
+    /** Returns the player's ID. */
     public int getId() {
         return id;
     }
 
+    /** Returns the player's color. */
     public PlayerColor getColor() {
         return color;
     }
 
+    /** Returns the player's current victory points. */
     public int getVictoryPoints() {
         return victoryPoints;
     }
 
+    /** Adds the specified amount of the given resource type to the player's hand. */
     public void addResources(ResourceType type, int amount) {
         resourceHand.put(type, resourceHand.getOrDefault(type, 0) + amount);
     }
 
+    /** Removes the specified amount of the given resource type from the player's hand. */
     public void removeResources(ResourceType type, int amount) {
         int current = resourceHand.getOrDefault(type, 0);
         int updated = current - amount;
@@ -76,6 +84,7 @@ public class Player {
         }
     }
 
+    /** Checks if the player has enough resources to afford the given cost. */
     public boolean canAfford(Map<ResourceType, Integer> cost) {
         for (Map.Entry<ResourceType, Integer> entry : cost.entrySet()) {
             ResourceType type = entry.getKey();
@@ -88,6 +97,7 @@ public class Player {
         return true;
     }
 
+    /** Agent behavior: attempts to build when holding more than 7 cards. */
     public String makeMove(Board board) {
 
         if (getTotalCards() <= 7) return "no-op";
@@ -157,6 +167,7 @@ public class Player {
         return true;
     }
 
+    /** Attempts to build a settlement at the given intersection if affordable and valid. */
     public boolean buildSettlement(Board board, Intersection intersection) {
         if (intersection.getOccupant() != null) return false;
         if (!board.canPlaceSettlement(intersection, this)) return false;
@@ -179,6 +190,7 @@ public class Player {
         return true;
     }
 
+    /** Upgrades a settlement to a city if the player owns it and can afford the cost. */
     public boolean upgradeCity(Intersection intersection) {
         Building building = intersection.getOccupant();
         if (!(building instanceof Settlement) || building.getOwner() != this) {
@@ -204,6 +216,7 @@ public class Player {
         return true;
     }
 
+    /** Handles dice roll 7: discards half hand if holding more than 7 cards. */
     public void handleDiceRoll7() {
         if (getTotalCards() > 7) {
             discardHalfHand();
@@ -230,6 +243,7 @@ public class Player {
         }
     }
 
+    /** Recalculates victory points based on built settlements and cities. */
     public void recalculateVictoryPoints() {
         this.victoryPoints = settlementsBuilt * 1 + citiesBuilt * 2;
     }

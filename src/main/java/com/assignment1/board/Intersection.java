@@ -5,6 +5,7 @@ import com.assignment1.pieces.Building;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Represents a vertex where buildings can be placed. */
 public class Intersection {
 
     private int id;

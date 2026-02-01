@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+/** Manages the game board: tiles, intersections, paths, and placement validation. */
 public class Board {
 
     private List<Tile> tiles;
@@ -21,6 +22,7 @@ public class Board {
     private Map<Integer, List<Tile>> tilesByProductionNumber;
     private Map<Intersection, List<Path>> pathsByIntersection;
 
+    /** Creates a new board with the given configuration. */
     public Board(GameConfig config) {
         this.tiles = new ArrayList<>();
         this.intersections = new ArrayList<>();
@@ -29,6 +31,7 @@ public class Board {
         this.pathsByIntersection = new HashMap<>();
     }
 
+    /** Sets up the fixed Catan board layout with tiles, intersections, and paths. */
     public void setup() {
         setupTiles();
         indexTilesByProductionNumber();
@@ -37,6 +40,7 @@ public class Board {
         connectTilesToIntersections();
     }
 
+    /** Creates the 19 tiles with terrain types and production numbers. */
     private void setupTiles() {
         // central tile
         tiles.add(new Tile(0, TerrainType.FOREST, 10)); // wood
@@ -178,6 +182,7 @@ public class Board {
         }
     }
 
+    /** Returns the tile with the given ID, or null if not found. */
     public Tile getTileById(int id) {
         if (id >= 0 && id < tiles.size()) {
             return tiles.get(id);
@@ -185,6 +190,7 @@ public class Board {
         return null;
     }
 
+    /** Returns the intersection with the given ID, or null if not found. */
     public Intersection getIntersectionById(int id) {
         if (id >= 0 && id < intersections.size()) {
             return intersections.get(id);
@@ -192,6 +198,7 @@ public class Board {
         return null;
     }
 
+    /** Returns the path with the given ID, or null if not found. */
     public Path getPathById(int id) {
         if (id >= 0 && id < paths.size()) {
             return paths.get(id);
@@ -199,18 +206,17 @@ public class Board {
         return null;
     }
 
+    /** Returns all intersections on the board. */
     public List<Intersection> getIntersections() {
         return intersections;
     }
 
+    /** Returns all paths on the board. */
     public List<Path> getPaths() {
         return paths;
     }
 
-    /**
-     * Road connectivity (R1.6): path must be adjacent to this player's existing road
-     * or to an intersection with this player's settlement/city.
-     */
+    /** Validates road placement: path must connect to player's existing road or building. */
     public boolean canPlaceRoad(Path path, Player player) {
 
         List<Intersection> endpoints = path.getEndpoints();
@@ -238,9 +244,7 @@ public class Board {
         return false;
     }
 
-    /**
-     * Settlement distance rule (R1.6): no building on any neighbor intersection.
-     */
+    /** Validates settlement placement: no building on intersection or its neighbors. */
     public boolean canPlaceSettlement(Intersection intersection, Player player) {
 
         if (intersection.getOccupant() != null) return false;
@@ -251,18 +255,17 @@ public class Board {
         return true;
     }
 
-    // return true if the intersection has a building owned by the player
     private boolean hasPlayerBuilding(Intersection intersection, Player player) {
         Building b = intersection.getOccupant();
         return b != null && b.getOwner() == player;
     }
 
-    // return all paths at the intersection
     private List<Path> pathsAt(Intersection intersection) {
         List<Path> at = pathsByIntersection.get(intersection);
         return at != null ? at : List.of();
     }
 
+    /** Distributes resources to players based on dice roll and their buildings. */
     public void produceResources(int diceRoll, List<Player> players) {
 
         List<Tile> matchingTiles = tilesByProductionNumber.get(diceRoll);

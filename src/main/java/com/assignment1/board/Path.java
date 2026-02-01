@@ -5,6 +5,7 @@ import com.assignment1.pieces.Road;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Represents an edge where roads can be placed. */
 public class Path {
 
     private int id;

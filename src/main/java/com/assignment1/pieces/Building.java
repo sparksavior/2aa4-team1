@@ -2,6 +2,7 @@ package com.assignment1.pieces;
 
 import com.assignment1.player.Player;
 
+/** Base class for buildings (settlements and cities). */
 public abstract class Building extends Piece {
     
     private int victoryPoints;

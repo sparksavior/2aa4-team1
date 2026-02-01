@@ -4,26 +4,31 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+/** Game configuration loaded from file. */
 public class GameConfig {
 
     private int maxRounds;
     private int targetVictoryPoints;
     private String configFilePath;
 
+    /** Returns the maximum number of rounds for the simulation. */
     public int getMaxRounds() {
         return maxRounds;
     }
 
+    /** Returns the target victory points to win the game. */
     public int getTargetVictoryPoints() {
         return targetVictoryPoints;
     }
 
+    /** Creates a game configuration with the given parameters. */
     public GameConfig(int maxRounds, int targetVP) {
         this.maxRounds = maxRounds;
         this.targetVictoryPoints = targetVP;
         this.configFilePath = null;
     }
 
+    /** Creates a GameConfig by reading configuration from the specified file. */
     public static GameConfig fromFile(String path) {
 
         int maxRounds = 100;

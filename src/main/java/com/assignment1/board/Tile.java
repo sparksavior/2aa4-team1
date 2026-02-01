@@ -5,6 +5,7 @@ import com.assignment1.enums.TerrainType;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Represents a hexagonal tile on the board. */
 public class Tile {
 
     private int id;
