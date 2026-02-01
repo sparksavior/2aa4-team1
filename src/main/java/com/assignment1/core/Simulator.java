@@ -25,10 +25,6 @@ public class Simulator {
         this.config = config;
         this.board = new Board(config);
         this.players = new ArrayList<>();
-        this.players.add(new Player(1, PlayerColor.RED));
-        this.players.add(new Player(2, PlayerColor.BLUE));
-        this.players.add(new Player(3, PlayerColor.WHITE));
-        this.players.add(new Player(4, PlayerColor.ORANGE));
         this.currentRound = 0;
         this.random = new Random();
     }
@@ -36,7 +32,7 @@ public class Simulator {
     public void run() {
 
         board.setup();
-        setupInitialSettlements();
+        createPlayers();
 
         currentRound = 1;
         while (!isFinished()) {
@@ -62,6 +58,15 @@ public class Simulator {
         for (Player player : players) {
             takeTurn(player);
         }
+
+        // show round summary
+        StringBuilder sb = new StringBuilder();
+        sb.append("-- round " + currentRound + " : ");
+        for (int i = 0; i < players.size(); i++) {
+            sb.append("player " + players.get(i).getId() + ": vp " + players.get(i).getVictoryPoints() + (i == players.size() - 1 ? "" : ", "));
+        }
+        sb.append("\n");
+        System.out.println(sb.toString());
     }
 
     public void takeTurn(Player player) {
@@ -92,22 +97,23 @@ public class Simulator {
         board.produceResources(diceRoll, players);
     }
 
-    private void setupInitialSettlements() {
+    private void createPlayers() {
         // place one settlement per player at valid intersections
         int[] initialIntersectionIds = {0, 24, 32, 40};
+        PlayerColor[] colors = {PlayerColor.RED, PlayerColor.BLUE, PlayerColor.WHITE, PlayerColor.ORANGE};
 
-        for (int i = 0; i < players.size() && i < initialIntersectionIds.length; i++) {
-            Player player = players.get(i);
+        for (int i = 0; i < initialIntersectionIds.length && i < colors.length; i++) {
             Intersection intersection = board.getIntersectionById(initialIntersectionIds[i]);
+            Player player = new Player(i + 1, colors[i], intersection);
 
-            if (intersection != null && board.canPlaceSettlement(intersection, player)) {
-                player.placeInitialSettlement(intersection);
-                player.addResources(ResourceType.BRICK, 1);
-                player.addResources(ResourceType.WOOD, 1);
-                player.addResources(ResourceType.WHEAT, 1);
-                player.addResources(ResourceType.SHEEP, 1);
-                player.addResources(ResourceType.ORE, 1);
-            }
+            // give initial resources
+            player.addResources(ResourceType.BRICK, 1);
+            player.addResources(ResourceType.WOOD, 1);
+            player.addResources(ResourceType.WHEAT, 1);
+            player.addResources(ResourceType.SHEEP, 1);
+            player.addResources(ResourceType.ORE, 1);
+
+            players.add(player);
         }
     }
 }

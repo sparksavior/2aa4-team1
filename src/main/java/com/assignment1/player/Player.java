@@ -34,6 +34,22 @@ public class Player {
         this.citiesBuilt = 0;
     }
 
+    public Player(int id, PlayerColor color, Intersection initialSettlement) {
+        this.id = id;
+        this.color = color;
+        this.resourceHand = new HashMap<>();
+        this.victoryPoints = 0;
+        this.roadsBuilt = 0;
+        this.settlementsBuilt = 0;
+        this.citiesBuilt = 0;
+        
+        if (initialSettlement != null) {
+            initialSettlement.setOccupant(new Settlement(this));
+            settlementsBuilt++;
+            recalculateVictoryPoints();
+        }
+    }
+
     public int getId() {
         return id;
     }
@@ -218,11 +234,5 @@ public class Player {
         this.victoryPoints = settlementsBuilt * 1 + citiesBuilt * 2;
     }
 
-    // initial setup: place settlement without cost
-    public void placeInitialSettlement(Intersection intersection) {
-        intersection.setOccupant(new Settlement(this));
-        settlementsBuilt++;
-        recalculateVictoryPoints();
-    }
     
 }
