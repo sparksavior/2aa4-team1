@@ -1,10 +1,12 @@
 package com.assignment1.core;
 
 import com.assignment1.board.Board;
+import com.assignment1.board.Intersection;
 import com.assignment1.config.GameConfig;
 import com.assignment1.player.Player;
 
 import com.assignment1.enums.PlayerColor;
+import com.assignment1.enums.ResourceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,7 @@ public class Simulator {
     public void run() {
 
         board.setup();
+        setupInitialSettlements();
 
         currentRound = 1;
         while (!isFinished()) {
@@ -58,10 +61,6 @@ public class Simulator {
 
         for (Player player : players) {
             takeTurn(player);
-        }
-        
-        for (Player player : players) {
-            System.out.println("round " + currentRound + " / player " + player.getId() + ": vp " + player.getVictoryPoints());
         }
     }
 
@@ -91,5 +90,24 @@ public class Simulator {
 
     public void distributeResources(int diceRoll) {
         board.produceResources(diceRoll, players);
+    }
+
+    private void setupInitialSettlements() {
+        // place one settlement per player at valid intersections
+        int[] initialIntersectionIds = {0, 24, 32, 40};
+
+        for (int i = 0; i < players.size() && i < initialIntersectionIds.length; i++) {
+            Player player = players.get(i);
+            Intersection intersection = board.getIntersectionById(initialIntersectionIds[i]);
+
+            if (intersection != null && board.canPlaceSettlement(intersection, player)) {
+                player.placeInitialSettlement(intersection);
+                player.addResources(ResourceType.BRICK, 1);
+                player.addResources(ResourceType.WOOD, 1);
+                player.addResources(ResourceType.WHEAT, 1);
+                player.addResources(ResourceType.SHEEP, 1);
+                player.addResources(ResourceType.ORE, 1);
+            }
+        }
     }
 }

@@ -217,5 +217,12 @@ public class Player {
     public void recalculateVictoryPoints() {
         this.victoryPoints = settlementsBuilt * 1 + citiesBuilt * 2;
     }
+
+    // initial setup: place settlement without cost
+    public void placeInitialSettlement(Intersection intersection) {
+        intersection.setOccupant(new Settlement(this));
+        settlementsBuilt++;
+        recalculateVictoryPoints();
+    }
     
 }
