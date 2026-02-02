@@ -36,9 +36,11 @@
 
 **Answer:**
 
-<!--
-abc
--->
+>In a large scale software project, GenAI should be used as a productivity and support tool rather than as a fully autonomous development system. Its main strengths are rapid code generation, scaffolding, boilerplate creation which can significantly reduce development time and developer workload. For example, GenAI can quickly generate class skeletons from UML diagrams allowing developers to focus on architecture, correctness and system integration.
+>
+>However, GenAI has notable weaknesses including inconsistent adherence to design models, semantic inaccuracies, oversimplification of complex logic and occasional structural errors. These limitations mean that GenAI-generated code cannot be blindly trusted in systems that require critical saftey or production grade systems.
+>
+>To balance these strengths and weaknesses, GenAI should be integrated into a workflow with human review, where developers define the design and models while GenAI helps with fast code generation and prototyping. Human developers carefully review, test and refine all generated code. This combined approach increases development speed while still ensuring correctness, reliability and long term maintainability, which are essential for large software systems.
 
 ---
 
@@ -46,10 +48,15 @@ abc
 
 **Answer:**
 
+>To maximize revenue, the best strategy would be Model-driven Software Engineering (MDSE). Although it has the longest design phase at 25 days, it has the shortest development time for version 1 at only 5 days and the lowest churn rate of 2.5%. Since the company loses 10 potential customers per day, releasing too late reduces total possible revenue, but releasing a poor quality product leads to refunds and lost trust. MDSE provides the best balance between development speed and product quality, resulting in faster delivery than conventional software engineering and much higher quality than cowboy or vibe coding. The low churn rate means fewer refunds and higher long term customer retention which is critical when each customer pays $1000. Therefore, despite the higher upfront design cost, MDSE maximizes revenue by delivering a high quality product within a reasonable timeframe while being reliable and minimizing customer loss before and after release.
+
 ---
 
 ## 5. Why did the Instructor ask you the questions in the previous point?
 
 **Answer:**
+
+>The instructor asked these questions to highlight the key difference between programming and software engineering. Programming mainly focuses on writing code quickly to make something work, while software engineering emphasizes designing systems that are correct, reliable, scalable, and maintainable under real world constraints like time, cost, quality, risk, and user satisfaction. These questions show that fast coding approaches such as vibe coding or cowboy coding, may increase development speed but often come with the cost of correctness, reliability, and long term client retention. In contrast, engineering approaches like model-driven software engineering, prioritize structured design, correctness, automation and systematic validation.
+Overall, the goal is to think like software engineers by balancing technical quality, business objectives, time and user experience, rather than simply focusing on writing code. 
 
 ---
