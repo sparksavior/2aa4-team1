@@ -69,3 +69,35 @@ All generated methods are empty but are accurately created by Papyrus
 ##7. Inheritance
 
 Inheritance rules are properly translated with subclasses accurately extending superclasses
+
+##8. Benefits
+Using Papyrus to translate UML into source code provides a consistent structural skeleton that mirrors the design model.
+This ensures that:
+
+	The code follows the set architecture
+	
+	Class relationships and inheritance are preserved
+	
+	Large systems that can be rapidly broken down into smaller problems without the need for writing tedious boilerplate code
+	
+	This approach is particularly useful for a team-based approach to development, as a UML diagram acts as a single source of truth avoiding potential misunderstandings across a team of designers and implementers.
+
+Model-driven translation is most appropriate when:
+
+	The system is large or complex
+	
+	The design is relatively stable
+	
+	Architectural consistency is more important than implementation
+	
+	Several developers must agree on structure before coding behavior
+
+This technique is less effective in:
+
+	The system is small or short-lived
+	
+	Language-specific semantic concepts (constructors, collections, generics, etc.) aare important
+	
+	The generated code needs to be extensively corrected manually, which reduces the productivity gain achieved
+	
+	Moreover, in such cases, coding the problem directly might be faster as well as yield a cleaner, more natural implementation.
