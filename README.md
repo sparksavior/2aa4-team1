@@ -42,7 +42,7 @@ This repository contains the implementation of a Settlers of Catan simulator dev
 
 ## Code Quality
 
-*Will be added later*
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=sparksavior_2aa4-team1)](https://sonarcloud.io/summary/new_code?id=sparksavior_2aa4-team1)
 
 ## Building and Running
 
