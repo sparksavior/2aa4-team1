@@ -29,7 +29,7 @@ public class PlayerTest {
     }
 
     @Test
-    void canAffordPartitionTesting(){
+    void canAffordPartitionTesting() {
         Player player = new Player(1, PlayerColor.RED);
         player.addResources(ResourceType.WOOD, 3);
 
@@ -47,7 +47,7 @@ public class PlayerTest {
     }
 
     @Test
-    void buildSettlement_succeedsWhenValid(){
+    void buildSettlement_succeedsWhenValid() {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
@@ -68,7 +68,7 @@ public class PlayerTest {
     }
 
     @Test
-    void buildSettlement_failsWithoutRequiredResources(){
+    void buildSettlement_failsWithoutRequiredResources() {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
@@ -84,7 +84,7 @@ public class PlayerTest {
     }
 
     @Test
-    void buildSettlements_shouldIncreaseVP(){
+    void buildSettlements_shouldIncreaseVP() {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
@@ -103,5 +103,53 @@ public class PlayerTest {
 
         assertTrue(built, "Settlement should build successfully");
         assertEquals(before + 1, player.getVictoryPoints(), "Victory points should increase by 1 after building settlement");
+    }
+
+    @Test
+    void buildSettlement_consumesResources() {
+        Board board = new Board(new GameConfig(100, 10));
+        board.setup();
+
+        Player player = new Player(5, PlayerColor.RED);
+
+        player.addResources(ResourceType.BRICK, 1);
+        player.addResources(ResourceType.WOOD, 1);
+        player.addResources(ResourceType.WHEAT, 1);
+        player.addResources(ResourceType.SHEEP, 1);
+
+        Intersection intersection = board.getIntersectionById(3);
+
+        assertTrue(player.buildSettlement(board, intersection), "Settlement should build");
+
+        //resources should be updated
+        assertFalse(player.canAfford(Map.of(ResourceType.BRICK, 1)), "Brick should be consumed");
+        assertFalse(player.canAfford(Map.of(ResourceType.WOOD, 1)), "WOOD should be consumed");
+        assertFalse(player.canAfford(Map.of(ResourceType.WHEAT, 1)), "WHEAT should be consumed");
+        assertFalse(player.canAfford(Map.of(ResourceType.SHEEP, 1)), "SHEEP should be consumed");
+    }
+
+    @Test
+    void buildSettlement_failsIfIntersectionOccupied() {
+        Board board = new Board(new GameConfig(100, 10));
+        board.setup();
+
+        Player player1 = new Player(6, PlayerColor.BLUE);
+        Player player2 = new Player(7, PlayerColor.RED);
+
+
+        for (Player p : new Player[]{player1, player2}) {
+            p.addResources(ResourceType.BRICK, 1);
+            p.addResources(ResourceType.WOOD, 1);
+            p.addResources(ResourceType.WHEAT, 1);
+            p.addResources(ResourceType.SHEEP, 1);
+
+        }
+
+        Intersection intersection = board.getIntersectionById(4);
+
+        assertTrue(player1.buildSettlement(board, intersection), "First build should succeed");
+        assertFalse(player2.buildSettlement(board, intersection), "Building should fail");
+
+
     }
 }

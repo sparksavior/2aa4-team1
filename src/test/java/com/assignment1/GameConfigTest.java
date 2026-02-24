@@ -58,4 +58,11 @@ class GameConfigTest{
         assertEquals(250, c3.getMaxRounds(), "valid turns should parse correctly");
 
     }
+
+    @Test
+    void fromFile_missingFile_returnsDefaultConfig(){
+        GameConfig cfg = GameConfig.fromFile("this_file_should_not_exist_12345.txt");
+        assertEquals(100, cfg.getMaxRounds(), "Missing file should default turns to 100");
+        assertEquals(10,cfg.getTargetVictoryPoints(), "Missing file should default to 10 VP");
+    }
 }
