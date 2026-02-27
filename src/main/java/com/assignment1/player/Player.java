@@ -68,6 +68,22 @@ public class Player {
         return victoryPoints;
     }
 
+    /** Returns a formatted string describing the player's resource hand. */
+    public String getResourceHandSummary() {
+        if (resourceHand.isEmpty()) {
+            return "empty";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<ResourceType, Integer> entry : resourceHand.entrySet()) {
+            if (!first) sb.append(", ");
+            sb.append(entry.getKey()).append(": ").append(entry.getValue());
+            first = false;
+        }
+        return sb.toString();
+    }
+
     /** Adds the specified amount of the given resource type to the player's hand. */
     public void addResources(ResourceType type, int amount) {
         resourceHand.put(type, resourceHand.getOrDefault(type, 0) + amount);
