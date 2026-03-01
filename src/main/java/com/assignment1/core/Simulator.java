@@ -4,12 +4,9 @@ import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.board.Tile;
 import com.assignment1.config.GameConfig;
-import com.assignment1.enums.PlayerColor;
-import com.assignment1.enums.ResourceType;
-import com.assignment1.enums.TerrainType;
+import com.assignment1.enums.*;
 import com.assignment1.pieces.Building;
-import com.assignment1.player.Player;
-import com.assignment1.player.ComputerPlayer;
+import com.assignment1.player.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +22,12 @@ public class Simulator {
     private List<Player> players;
     private GameConfig config;
     private int currentRound;
+    private int currentPlayerIndex;
+    private TurnState currentTurnState;
+    private boolean stepMode;
 
     private final Random random;
     private final Scanner scanner;
-    private boolean stepMode;
 
     /** Creates a new simulator with the given configuration. */
     public Simulator(GameConfig config) {
@@ -41,9 +40,11 @@ public class Simulator {
         this.board = new Board(config);
         this.players = new ArrayList<>();
         this.currentRound = 0;
+        this.currentPlayerIndex = 0;
+        this.currentTurnState = TurnState.START;
+        this.stepMode = stepMode;
         this.random = new Random();
         this.scanner = new Scanner(System.in);
-        this.stepMode = stepMode;
     }
 
     /** Runs the simulation until termination conditions are met. */
@@ -63,22 +64,33 @@ public class Simulator {
         }
     }
 
-    /** Executes one round: dice roll, resource distribution or discard, and player turns. */
+    /** Executes one round: each player takes their turn (roll dice, take actions). */
     public void playRound() {
-        int diceRoll = rollDice();
-        if (diceRoll != 7) {
-            distributeResources(diceRoll);
-        } else {
-            handleDiceRoll7(diceRoll);
-        }
+        for (int i = 0; i < players.size(); i++) {
+            currentPlayerIndex = i;
+            Player currentPlayer = players.get(i);
+            
+            // ROLL: player rolls dice on their turn
+            currentTurnState = TurnState.ROLL;
+            int diceRoll = rollDice();
+            
+            if (diceRoll != 7) {
+                distributeResources(diceRoll);
+            } else {
+                handleDiceRoll7(currentPlayer);
+            }
 
-        for (Player player : players) {
-            takeTurn(player);
+            // ROLL -> ACTION: player takes actions
+            currentTurnState = TurnState.ACTION;
+            takeTurn(currentPlayer);
 
             // wait for "go" command if step-forward mode is enabled
-            if (stepMode && player instanceof ComputerPlayer) {
-                waitForGoCommand(player);
+            if (stepMode && currentPlayer instanceof ComputerPlayer) {
+                waitForGoCommand(currentPlayer);
             }
+
+            // ACTION -> END: turn complete
+            currentTurnState = TurnState.END;
         }
 
         // show round summary
@@ -95,6 +107,16 @@ public class Simulator {
     public void takeTurn(Player player) {
         String action = player.makeMove(board);
         System.out.println(currentRound + " / " + player.getId() + ": " + action);
+    }
+
+    /** Returns the index of the player currently taking their turn. */
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    /** Returns the current state of the player's turn. */
+    public TurnState getCurrentTurnState() {
+        return currentTurnState;
     }
 
     /** Checks if the simulation should terminate. */
@@ -126,10 +148,6 @@ public class Simulator {
     /** Waits for the user to enter "go" command before proceeding. */
     private void waitForGoCommand(Player player) {
         while (true) {
-            // TODO: switch to CommandParser when implemented
-            // CommandParser parser = new CommandParser();
-            // Command cmd = parser.parse(input);
-            // if (cmd instanceof GoCommand) break;
             String input = scanner.nextLine().trim();
             if (input.equalsIgnoreCase("go")) {
                 break;
@@ -138,7 +156,7 @@ public class Simulator {
     }
 
     /** Handles dice roll 7: discards half hand, places robber, and steals from qualifying player. */
-    private void handleDiceRoll7(int diceRoll) {
+    private void handleDiceRoll7(Player currentPlayer) {
         // 1. all players discard half hand if holding >7 cards
         for (Player player : players) {
             player.handleDiceRoll7();
@@ -156,8 +174,7 @@ public class Simulator {
         // 4. randomly select a qualifying player and steal from them
         if (!qualifyingPlayers.isEmpty()) {
             Player fromPlayer = qualifyingPlayers.get(random.nextInt(qualifyingPlayers.size()));
-            Player toPlayer = players.get(0); // TODO: implement full logic for turn tracking
-            board.getRobber().steal(fromPlayer, toPlayer);
+            board.getRobber().steal(fromPlayer, currentPlayer);
         }
     }
 
