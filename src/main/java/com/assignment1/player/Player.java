@@ -12,7 +12,6 @@ import com.assignment1.pieces.Building;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /** Represents a player with resources, buildings, and agent behavior. */
 public abstract class Player {
@@ -66,6 +65,11 @@ public abstract class Player {
     /** Returns the player's current victory points. */
     public int getVictoryPoints() {
         return victoryPoints;
+    }
+
+    /** Returns the count of a specific resource type the player has. */
+    public int getResourceCount(ResourceType type) {
+        return resourceHand.getOrDefault(type, 0);
     }
 
     /** Returns a formatted string describing the player's resource hand. */
