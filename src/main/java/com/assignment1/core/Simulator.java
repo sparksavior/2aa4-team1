@@ -4,6 +4,7 @@ import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.config.GameConfig;
 import com.assignment1.player.Player;
+import com.assignment1.player.ComputerPlayer;
 
 import com.assignment1.enums.PlayerColor;
 import com.assignment1.enums.ResourceType;
@@ -112,7 +113,7 @@ public class Simulator {
 
         for (int i = 0; i < initialIntersectionIds.length && i < colors.length; i++) {
             Intersection intersection = board.getIntersectionById(initialIntersectionIds[i]);
-            Player player = new Player(i + 1, colors[i], intersection);
+            Player player = new ComputerPlayer(i + 1, colors[i], intersection);
 
             // give initial resources
             player.addResources(ResourceType.BRICK, 1);
