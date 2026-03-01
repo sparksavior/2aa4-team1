@@ -6,6 +6,7 @@ import com.assignment1.config.GameConfig;
 import com.assignment1.enums.PlayerColor;
 import com.assignment1.enums.ResourceType;
 import com.assignment1.player.Player;
+import com.assignment1.player.ComputerPlayer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class PlayerTest {
     @Test
     void addAndRemoveResources_updatesHand() {
-        Player player = new Player(0, PlayerColor.BLUE);
+        Player player = new ComputerPlayer(0, PlayerColor.BLUE);
 
         player.addResources(ResourceType.WOOD, 3);
         player.addResources(ResourceType.WHEAT, 2);
@@ -30,7 +31,7 @@ public class PlayerTest {
 
     @Test
     void canAffordPartitionTesting() {
-        Player player = new Player(1, PlayerColor.RED);
+        Player player = new ComputerPlayer(1, PlayerColor.RED);
         player.addResources(ResourceType.WOOD, 3);
 
         // Partition 1: exactly enough
@@ -51,7 +52,7 @@ public class PlayerTest {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
-        Player player = new Player(2, PlayerColor.BLUE);
+        Player player = new ComputerPlayer(2, PlayerColor.BLUE);
 
         player.addResources(ResourceType.BRICK, 1);
         player.addResources(ResourceType.WOOD, 1);
@@ -72,7 +73,7 @@ public class PlayerTest {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
-        Player player = new Player(3, PlayerColor.RED);
+        Player player = new ComputerPlayer(3, PlayerColor.RED);
 
 
         Intersection intersection = board.getIntersectionById(1);
@@ -88,7 +89,7 @@ public class PlayerTest {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
-        Player player = new Player(4, PlayerColor.BLUE);
+        Player player = new ComputerPlayer(4, PlayerColor.BLUE);
 
         player.addResources(ResourceType.BRICK, 1);
         player.addResources(ResourceType.WOOD, 1);
@@ -110,7 +111,7 @@ public class PlayerTest {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
-        Player player = new Player(5, PlayerColor.RED);
+        Player player = new ComputerPlayer(5, PlayerColor.RED);
 
         player.addResources(ResourceType.BRICK, 1);
         player.addResources(ResourceType.WOOD, 1);
@@ -133,8 +134,8 @@ public class PlayerTest {
         Board board = new Board(new GameConfig(100, 10));
         board.setup();
 
-        Player player1 = new Player(6, PlayerColor.BLUE);
-        Player player2 = new Player(7, PlayerColor.RED);
+        Player player1 = new ComputerPlayer(6, PlayerColor.BLUE);
+        Player player2 = new ComputerPlayer(7, PlayerColor.RED);
 
 
         for (Player p : new Player[]{player1, player2}) {

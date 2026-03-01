@@ -21,6 +21,7 @@ public class Board {
     private List<Path> paths;
     private Map<Integer, List<Tile>> tilesByProductionNumber;
     private Map<Intersection, List<Path>> pathsByIntersection;
+    private Robber robber;
 
     /** Creates a new board with the given configuration. */
     public Board(GameConfig config) {
@@ -29,6 +30,7 @@ public class Board {
         this.paths = new ArrayList<>();
         this.tilesByProductionNumber = new HashMap<>();
         this.pathsByIntersection = new HashMap<>();
+        this.robber = new Robber();
     }
 
     /** Sets up the fixed Catan board layout with tiles, intersections, and paths. */
@@ -214,6 +216,16 @@ public class Board {
     /** Returns all paths on the board. */
     public List<Path> getPaths() {
         return paths;
+    }
+
+    /* Returns the robber on this board. */
+    public Robber getRobber() {
+        return robber;
+    }
+
+    /* Returns all tiles on the board. */
+    public List<Tile> getTiles() {
+        return tiles;
     }
 
     /** Validates road placement: path must connect to player's existing road or building. */
