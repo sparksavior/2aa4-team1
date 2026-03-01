@@ -14,6 +14,7 @@ import com.assignment1.player.ComputerPlayer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -26,14 +27,23 @@ public class Simulator {
     private int currentRound;
 
     private final Random random;
+    private final Scanner scanner;
+    private boolean stepMode;
 
     /** Creates a new simulator with the given configuration. */
     public Simulator(GameConfig config) {
+        this(config, false);
+    }
+
+    /** Creates a new simulator with the given configuration and step-forward mode. */
+    public Simulator(GameConfig config, boolean stepMode) {
         this.config = config;
         this.board = new Board(config);
         this.players = new ArrayList<>();
         this.currentRound = 0;
         this.random = new Random();
+        this.scanner = new Scanner(System.in);
+        this.stepMode = stepMode;
     }
 
     /** Runs the simulation until termination conditions are met. */
@@ -64,6 +74,11 @@ public class Simulator {
 
         for (Player player : players) {
             takeTurn(player);
+
+            // wait for "go" command if step-forward mode is enabled
+            if (stepMode && player instanceof ComputerPlayer) {
+                waitForGoCommand(player);
+            }
         }
 
         // show round summary
@@ -106,6 +121,20 @@ public class Simulator {
     /** Delegates resource production to the board based on dice roll. */
     public void distributeResources(int diceRoll) {
         board.produceResources(diceRoll, players);
+    }
+
+    /** Waits for the user to enter "go" command before proceeding. */
+    private void waitForGoCommand(Player player) {
+        while (true) {
+            // TODO: switch to CommandParser when implemented
+            // CommandParser parser = new CommandParser();
+            // Command cmd = parser.parse(input);
+            // if (cmd instanceof GoCommand) break;
+            String input = scanner.nextLine().trim();
+            if (input.equalsIgnoreCase("go")) {
+                break;
+            }
+        }
     }
 
     /** Handles dice roll 7: discards half hand, places robber, and steals from qualifying player. */
