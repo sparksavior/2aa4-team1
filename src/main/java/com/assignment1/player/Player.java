@@ -37,14 +37,7 @@ public abstract class Player {
 
     /** Creates a player with an initial settlement at the given intersection. */
     public Player(int id, PlayerColor color, Intersection initialSettlement) {
-        this.id = id;
-        this.color = color;
-        this.resourceHand = new HashMap<>();
-        this.victoryPoints = 0;
-        this.roadsBuilt = 0;
-        this.settlementsBuilt = 0;
-        this.citiesBuilt = 0;
-        
+        this(id, color);
         if (initialSettlement != null) {
             initialSettlement.setOccupant(new Settlement(this));
             settlementsBuilt++;
