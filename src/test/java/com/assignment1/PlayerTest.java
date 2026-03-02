@@ -153,4 +153,62 @@ public class PlayerTest {
 
 
     }
+
+    @Test
+    void handleDiceRoll7_discardsHalfWhenOver7Cards() {
+        Player player = new ComputerPlayer(9, PlayerColor.RED);
+
+        // total = 10 cards
+        player.addResources(ResourceType.WOOD, 4);
+        player.addResources(ResourceType.BRICK, 3);
+        player.addResources(ResourceType.WHEAT, 3);
+
+        // before: 10
+        int before = player.getResourceCount(ResourceType.WOOD)
+                + player.getResourceCount(ResourceType.BRICK)
+                + player.getResourceCount(ResourceType.WHEAT);
+
+        player.handleDiceRoll7();
+
+        int after = player.getResourceCount(ResourceType.WOOD)
+                + player.getResourceCount(ResourceType.BRICK)
+                + player.getResourceCount(ResourceType.WHEAT);
+
+        // discards half: 10/2 = 5 → remaining 5
+        assertEquals(10, before);
+        assertEquals(5, after, "Should discard half the cards when >7");
+    }
+
+    @Test
+    void handleDiceRoll7_doesNothingWhen7OrLessCards() {
+        Player player = new ComputerPlayer(10, PlayerColor.BLUE);
+
+        // total = 7
+        player.addResources(ResourceType.WOOD, 3);
+        player.addResources(ResourceType.BRICK, 2);
+        player.addResources(ResourceType.WHEAT, 2);
+
+        int before = player.getResourceCount(ResourceType.WOOD)
+                + player.getResourceCount(ResourceType.BRICK)
+                + player.getResourceCount(ResourceType.WHEAT);
+
+        player.handleDiceRoll7();
+
+        int after = player.getResourceCount(ResourceType.WOOD)
+                + player.getResourceCount(ResourceType.BRICK)
+                + player.getResourceCount(ResourceType.WHEAT);
+
+        assertEquals(before, after, "Should not discard when holding 7 or fewer cards");
+    }
+
+    @Test
+    void computerPlayer_makeMove_noOpWhen7OrLessCards() {
+        Board board = new Board(new GameConfig(100, 10));
+        board.setup();
+
+        ComputerPlayer p = new ComputerPlayer(11, PlayerColor.RED);
+        p.addResources(ResourceType.WOOD, 7); // total = 7
+
+        assertEquals("no-op", p.makeMove(board));
+    }
 }
