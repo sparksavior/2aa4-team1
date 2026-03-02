@@ -12,10 +12,9 @@ import com.assignment1.pieces.Building;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /** Represents a player with resources, buildings, and agent behavior. */
-public class Player {
+public abstract class Player {
 
     private int id;
     private PlayerColor color;
@@ -38,14 +37,7 @@ public class Player {
 
     /** Creates a player with an initial settlement at the given intersection. */
     public Player(int id, PlayerColor color, Intersection initialSettlement) {
-        this.id = id;
-        this.color = color;
-        this.resourceHand = new HashMap<>();
-        this.victoryPoints = 0;
-        this.roadsBuilt = 0;
-        this.settlementsBuilt = 0;
-        this.citiesBuilt = 0;
-        
+        this(id, color);
         if (initialSettlement != null) {
             initialSettlement.setOccupant(new Settlement(this));
             settlementsBuilt++;
@@ -66,6 +58,27 @@ public class Player {
     /** Returns the player's current victory points. */
     public int getVictoryPoints() {
         return victoryPoints;
+    }
+
+    /** Returns the count of a specific resource type the player has. */
+    public int getResourceCount(ResourceType type) {
+        return resourceHand.getOrDefault(type, 0);
+    }
+
+    /** Returns a formatted string describing the player's resource hand. */
+    public String getResourceHandSummary() {
+        if (resourceHand.isEmpty()) {
+            return "empty";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<ResourceType, Integer> entry : resourceHand.entrySet()) {
+            if (!first) sb.append(", ");
+            sb.append(entry.getKey()).append(": ").append(entry.getValue());
+            first = false;
+        }
+        return sb.toString();
     }
 
     /** Adds the specified amount of the given resource type to the player's hand. */
@@ -97,18 +110,10 @@ public class Player {
         return true;
     }
 
-    /** Agent behavior: attempts to build when holding more than 7 cards. */
-    public String makeMove(Board board) {
+    public abstract String makeMove(Board board);
 
-        if (getTotalCards() <= 7) return "no-op";
-
-        return tryUpgradeCity(board)
-            .or(() -> tryBuildSettlement(board))
-            .or(() -> tryBuildRoad(board))
-            .orElse("no-op");
-    }
-
-    private int getTotalCards() {
+    /** Returns the total number of resource cards in the player's hand. */
+    protected int getTotalCards() {
         int total = 0;
         for (ResourceType type : ResourceType.values()) {
             total += resourceHand.getOrDefault(type, 0);
@@ -116,36 +121,6 @@ public class Player {
         return total;
     }
 
-    private Optional<String> tryUpgradeCity(Board board) {
-        for (Intersection intersection : board.getIntersections()) {
-            Building occupant = intersection.getOccupant();
-            // currently holding a Settlement
-            if (occupant instanceof Settlement && occupant.getOwner() == this) {
-                if (upgradeCity(intersection)) {
-                    return Optional.of("upgrade city");
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    private Optional<String> tryBuildSettlement(Board board) {
-        for (Intersection intersection : board.getIntersections()) {
-            if (intersection.getOccupant() == null && buildSettlement(board, intersection)) {
-                return Optional.of("build settlement");
-            }
-        }
-        return Optional.empty(); // no settlement to build
-    }
-
-    private Optional<String> tryBuildRoad(Board board) {
-        for (Path path : board.getPaths()) {
-            if (path.getOccupant() == null && buildRoad(board, path)) {
-                return Optional.of("build road");
-            }
-        }
-        return Optional.empty(); // no road to build
-    }
 
     public boolean buildRoad(Board board, Path path) {
         if (path.getOccupant() != null) return false;
