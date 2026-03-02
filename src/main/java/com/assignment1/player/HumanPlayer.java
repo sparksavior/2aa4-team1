@@ -4,6 +4,7 @@ import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.command.Command;
 import com.assignment1.command.GoCommand;
+import com.assignment1.command.RollCommand;
 import com.assignment1.core.CommandParser;
 import com.assignment1.enums.PlayerColor;
 
@@ -49,7 +50,7 @@ public class HumanPlayer extends Player {
 
             if (cmd instanceof GoCommand)
                 return result; // turn ends
-            if (cmd instanceof com.assignment1.command.RollCommand)
+            if (cmd instanceof RollCommand)
                 return result; // pass roll back to Simulator
 
             // For other commands (List, Build), log result to console
