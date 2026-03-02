@@ -4,6 +4,7 @@ import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.command.Command;
 import com.assignment1.command.GoCommand;
+import com.assignment1.command.RollCommand;
 import com.assignment1.core.CommandParser;
 import com.assignment1.enums.PlayerColor;
 
@@ -32,16 +33,30 @@ public class HumanPlayer extends Player {
     // Executes a human player's turn by parsing and executing commands from input.
     @Override
     public String makeMove(Board board) {
-        // TODO: implement command execution logic by role 4
         while (true) {
             String input = scanner.nextLine();
-            Command cmd = parser.parse(input);
-            if (cmd == null) continue; // invalid command, try again
+            Command cmd;
+            try {
+                cmd = parser.parse(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                continue;
+            }
+
+            if (cmd == null)
+                continue; // invalid command, try again
 
             String result = cmd.execute(this, board);
-            if (cmd instanceof GoCommand) return result; // turn ends
 
-            // TODO: other commands goes here...
+            if (cmd instanceof GoCommand)
+                return result; // turn ends
+            if (cmd instanceof RollCommand)
+                return result; // pass roll back to Simulator
+
+            // For other commands (List, Build), log result to console
+            if (result != null) {
+                System.out.println(result);
+            }
         }
     }
 }
