@@ -60,4 +60,6 @@ public class Robber {
         fromPlayer.removeResources(stolenType, 1);
         toPlayer.addResources(stolenType, 1);
     }
+
+
 }
