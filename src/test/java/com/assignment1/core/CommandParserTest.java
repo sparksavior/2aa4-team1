@@ -1,5 +1,7 @@
 package com.assignment1.core;
 
+import com.assignment1.command.*;
+import com.assignment1.enums.BuildType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,102 +17,79 @@ public class CommandParserTest {
 
     @Test
     public void testParseRollCommand() {
-        ParsedCommand cmd = parser.parse("Roll");
-        assertEquals(ParsedCommand.ActionType.ROLL, cmd.getActionType());
+        Command cmd = parser.parse("Roll");
+        assertTrue(cmd instanceof RollCommand);
 
         // Test case insensitivity
-        assertEquals(ParsedCommand.ActionType.ROLL, parser.parse("rOlL").getActionType());
+        assertTrue(parser.parse("rOlL") instanceof RollCommand);
     }
 
     @Test
     public void testParseGoCommand() {
-        ParsedCommand cmd = parser.parse("Go");
-        assertEquals(ParsedCommand.ActionType.GO, cmd.getActionType());
+        Command cmd = parser.parse("Go");
+        assertTrue(cmd instanceof GoCommand);
     }
 
     @Test
     public void testParseListCommand() {
-        ParsedCommand cmd = parser.parse("List");
-        assertEquals(ParsedCommand.ActionType.LIST, cmd.getActionType());
+        Command cmd = parser.parse("List");
+        assertTrue(cmd instanceof ListCommand);
     }
 
     @Test
     public void testParseBuildSettlementCommand() {
-        ParsedCommand cmd = parser.parse("Build settlement 5");
-        assertEquals(ParsedCommand.ActionType.BUILD_SETTLEMENT, cmd.getActionType());
-        assertEquals(1, cmd.getArgs().size());
-        assertEquals("5", cmd.getArgs().get(0));
+        Command cmd = parser.parse("Build settlement 5");
+        assertTrue(cmd instanceof BuildCommand);
+        assertEquals(BuildType.SETTLEMENT, getPrivateField(cmd, "buildType"));
+        assertEquals(5, getPrivateField(cmd, "nodeId"));
     }
 
     @Test
     public void testParseBuildCityCommand() {
-        ParsedCommand cmd = parser.parse("build city 12");
-        assertEquals(ParsedCommand.ActionType.BUILD_CITY, cmd.getActionType());
-        assertEquals(1, cmd.getArgs().size());
-        assertEquals("12", cmd.getArgs().get(0));
+        Command cmd = parser.parse("build city 12");
+        assertTrue(cmd instanceof BuildCommand);
+        assertEquals(BuildType.CITY, getPrivateField(cmd, "buildType"));
+        assertEquals(12, getPrivateField(cmd, "nodeId"));
     }
 
     @Test
     public void testParseBuildRoadCommand() {
         // Test with comma
-        ParsedCommand cmd = parser.parse("Build road 4, 5");
-        assertEquals(ParsedCommand.ActionType.BUILD_ROAD, cmd.getActionType());
-        assertEquals(2, cmd.getArgs().size());
-        assertEquals("4", cmd.getArgs().get(0));
-        assertEquals("5", cmd.getArgs().get(1));
+        Command cmd = parser.parse("Build road 4, 5");
+        assertTrue(cmd instanceof BuildCommand);
+        assertEquals(BuildType.ROAD, getPrivateField(cmd, "buildType"));
+        assertEquals(4, getPrivateField(cmd, "fromNodeId"));
+        assertEquals(5, getPrivateField(cmd, "toNodeId"));
 
         // Test with space only
-        ParsedCommand cmd2 = parser.parse("Build road 4 5");
-        assertEquals(ParsedCommand.ActionType.BUILD_ROAD, cmd2.getActionType());
-        assertEquals("4", cmd2.getArgs().get(0));
-        assertEquals("5", cmd2.getArgs().get(1));
+        Command cmd2 = parser.parse("Build road 4 5");
+        assertTrue(cmd2 instanceof BuildCommand);
+        assertEquals(BuildType.ROAD, getPrivateField(cmd2, "buildType"));
+        assertEquals(4, getPrivateField(cmd2, "fromNodeId"));
+        assertEquals(5, getPrivateField(cmd2, "toNodeId"));
+    }
+
+    private Object getPrivateField(Object obj, String fieldName) {
+        try {
+            java.lang.reflect.Field field = obj.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(obj);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to access field " + fieldName, e);
+        }
     }
 
     @Test
     public void testEmptyOrNullCommand() {
-        try {
-            parser.parse("");
-            fail("Expected IllegalArgumentException for empty string");
-        } catch (IllegalArgumentException expected) {
-            // Test passes
-        }
-
-        try {
-            parser.parse("   ");
-            fail("Expected IllegalArgumentException for blank string");
-        } catch (IllegalArgumentException expected) {
-            // Test passes
-        }
-
-        try {
-            parser.parse(null);
-            fail("Expected IllegalArgumentException for null");
-        } catch (IllegalArgumentException expected) {
-            // Test passes
-        }
+        assertThrows(IllegalArgumentException.class, () -> parser.parse(""));
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("   "));
+        assertThrows(IllegalArgumentException.class, () -> parser.parse(null));
     }
 
     @Test
     public void testInvalidCommand() {
-        try {
-            parser.parse("Jump");
-            fail("Expected IllegalArgumentException for invalid action");
-        } catch (IllegalArgumentException expected) {
-            // Test passes
-        }
-
-        try {
-            parser.parse("Build settlement"); // Missing arguments
-            fail("Expected IllegalArgumentException for missing settlement param");
-        } catch (IllegalArgumentException expected) {
-            // Test passes
-        }
-
-        try {
-            parser.parse("Build road 5"); // Missing argument
-            fail("Expected IllegalArgumentException for missing 2nd road param");
-        } catch (IllegalArgumentException expected) {
-            // Test passes
-        }
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("Jump"));
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("Build settlement"));
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("Build road 5"));
     }
 }

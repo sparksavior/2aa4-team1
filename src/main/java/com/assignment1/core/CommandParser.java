@@ -1,8 +1,14 @@
 package com.assignment1.core;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.assignment1.command.BuildCommand;
+import com.assignment1.command.Command;
+import com.assignment1.command.GoCommand;
+import com.assignment1.command.ListCommand;
+import com.assignment1.command.RollCommand;
+import com.assignment1.enums.BuildType;
 
 public class CommandParser {
 
@@ -19,7 +25,7 @@ public class CommandParser {
     // Example: Build road 5, 8 or Build road 5 8
     private static final Pattern BUILD_ROAD_PATTERN = Pattern.compile("(?i)^Build\\s+road\\s+(\\d+)[,\\s]+(\\d+)$");
 
-    public ParsedCommand parse(String input) {
+    public Command parse(String input) {
         if (input == null || input.trim().isEmpty()) {
             throw new IllegalArgumentException("Input cannot be empty");
         }
@@ -27,32 +33,32 @@ public class CommandParser {
         input = input.trim();
 
         if (ROLL_PATTERN.matcher(input).matches()) {
-            return new ParsedCommand(ParsedCommand.ActionType.ROLL);
+            return new RollCommand();
         }
         if (GO_PATTERN.matcher(input).matches()) {
-            return new ParsedCommand(ParsedCommand.ActionType.GO);
+            return new GoCommand();
         }
         if (LIST_PATTERN.matcher(input).matches()) {
-            return new ParsedCommand(ParsedCommand.ActionType.LIST);
+            return new ListCommand();
         }
 
         Matcher settlementMatcher = BUILD_SETTLEMENT_PATTERN.matcher(input);
         if (settlementMatcher.matches()) {
-            String nodeId = settlementMatcher.group(1);
-            return new ParsedCommand(ParsedCommand.ActionType.BUILD_SETTLEMENT, Arrays.asList(nodeId));
+            int nodeId = Integer.parseInt(settlementMatcher.group(1));
+            return new BuildCommand(BuildType.SETTLEMENT, nodeId);
         }
 
         Matcher cityMatcher = BUILD_CITY_PATTERN.matcher(input);
         if (cityMatcher.matches()) {
-            String nodeId = cityMatcher.group(1);
-            return new ParsedCommand(ParsedCommand.ActionType.BUILD_CITY, Arrays.asList(nodeId));
+            int nodeId = Integer.parseInt(cityMatcher.group(1));
+            return new BuildCommand(BuildType.CITY, nodeId);
         }
 
         Matcher roadMatcher = BUILD_ROAD_PATTERN.matcher(input);
         if (roadMatcher.matches()) {
-            String fromNode = roadMatcher.group(1);
-            String toNode = roadMatcher.group(2);
-            return new ParsedCommand(ParsedCommand.ActionType.BUILD_ROAD, Arrays.asList(fromNode, toNode));
+            int fromNode = Integer.parseInt(roadMatcher.group(1));
+            int toNode = Integer.parseInt(roadMatcher.group(2));
+            return new BuildCommand(fromNode, toNode);
         }
 
         throw new IllegalArgumentException("Invalid command: " + input);
