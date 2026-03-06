@@ -1,19 +1,24 @@
 package com.assignment1.core;
 
-import com.assignment1.board.Board;
-import com.assignment1.board.Intersection;
-import com.assignment1.board.Tile;
-import com.assignment1.config.GameConfig;
-import com.assignment1.enums.*;
-import com.assignment1.pieces.Building;
-import com.assignment1.player.*;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.HashSet;
+
+import com.assignment1.board.Board;
+import com.assignment1.board.Intersection;
+import com.assignment1.board.Tile;
+import com.assignment1.config.GameConfig;
+import com.assignment1.enums.PlayerColor;
+import com.assignment1.enums.ResourceType;
+import com.assignment1.enums.TerrainType;
+import com.assignment1.enums.TurnState;
+import com.assignment1.io.GameStateExporter;
+import com.assignment1.pieces.Building;
+import com.assignment1.player.ComputerPlayer;
+import com.assignment1.player.Player;
 
 /** Orchestrates the game simulation loop and player turns. */
 public class Simulator {
@@ -28,6 +33,8 @@ public class Simulator {
 
     private final Random random;
     private final Scanner scanner;
+
+    private final GameStateExporter exporter;
 
     /** Creates a new simulator with the given configuration. */
     public Simulator(GameConfig config) {
@@ -45,6 +52,7 @@ public class Simulator {
         this.stepMode = stepMode;
         this.random = new Random();
         this.scanner = new Scanner(System.in);
+        this.exporter = new GameStateExporter("visualize/state.json");
     }
 
     /** Runs the simulation until termination conditions are met. */
@@ -52,6 +60,8 @@ public class Simulator {
 
         board.setup();
         createPlayers();
+
+        exporter.export(board);
 
         currentRound = 1;
         while (!isFinished()) {
@@ -107,6 +117,11 @@ public class Simulator {
     public void takeTurn(Player player) {
         String action = player.makeMove(board);
         System.out.println(currentRound + " / " + player.getId() + ": " + action);
+
+        System.out.println("Total roads: " + board.getPaths().stream().filter(p -> p.getOccupant() != null).count());
+        System.out.println("Total buildings: " + board.getIntersections().stream().filter(i -> i.getOccupant() != null).count());
+
+        exporter.export(board);
     }
 
     /** Returns the index of the player currently taking their turn. */
