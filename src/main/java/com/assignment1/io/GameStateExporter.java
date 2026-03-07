@@ -1,8 +1,11 @@
 package com.assignment1.io;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
@@ -32,7 +35,19 @@ public class GameStateExporter {
 
     // Exports the current board state into JSON format
     public void export(Board board) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(outputPath))) {
+        try {
+            java.nio.file.Path filePath = Paths.get(outputPath);
+            
+            // Create parent directories if they don't exist
+            java.nio.file.Path parentDir = filePath.getParent();
+            if (parentDir != null) {
+                Files.createDirectories(parentDir);
+            }
+            
+            // Get the absolute path for writing
+            File outputFile = filePath.toFile();
+            
+            try (PrintWriter writer = new PrintWriter(new FileWriter(outputFile))) {
 
             writer.println("{");
 
@@ -88,9 +103,10 @@ public class GameStateExporter {
             writer.println();
             writer.println("  ]");
 
-            writer.println("}");
-
+                writer.println("}");
+            }
         } catch (IOException e) {
+            System.err.println("Error exporting game state to " + outputPath + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
