@@ -15,6 +15,17 @@ local.properties
 .loadpath
 .recommenders
 
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Catan visualizer dependencies
+visualize/catanatron/
+
+# Generated boards
+visualize/scraped_boards/
+
 # Maven
 target/
 pom.xml.tag
