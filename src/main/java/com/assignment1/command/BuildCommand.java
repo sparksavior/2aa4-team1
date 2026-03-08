@@ -3,9 +3,12 @@ package com.assignment1.command;
 import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.board.Path;
-import com.assignment1.enums.BuildType;
+import com.assignment1.enums.*;
 import com.assignment1.player.Player;
+import com.assignment1.pieces.Settlement;
+
 import java.util.List;
+import java.util.Map;
 
 // Command to build a settlement, city, or road
 public class BuildCommand extends Command {
@@ -39,31 +42,77 @@ public class BuildCommand extends Command {
                 if (intersection == null) {
                     return "build settlement failed: invalid intersection id " + nodeId;
                 }
+                if (intersection.getOccupant() != null) {
+                    return "build settlement failed: intersection " + nodeId + " is already occupied";
+                }
+                if (!player.canAfford(Map.of(
+                    ResourceType.BRICK, 1,
+                    ResourceType.WOOD, 1,
+                    ResourceType.WHEAT, 1,
+                    ResourceType.SHEEP, 1
+                ))) {
+                    return "build settlement failed: insufficient resources (need 1 BRICK, 1 WOOD, 1 WHEAT, 1 SHEEP)";
+                }
                 if (player.buildSettlement(board, intersection)) {
                     return "build settlement " + nodeId;
                 }
-                return "build settlement failed";
+                return "build settlement failed: unknown error";
                 
             case CITY:
                 Intersection cityIntersection = board.getIntersectionById(nodeId);
                 if (cityIntersection == null) {
                     return "build city failed: invalid intersection id " + nodeId;
                 }
+                if (cityIntersection.getOccupant() == null) {
+                    return "build city failed: no settlement at intersection " + nodeId;
+                }
+                if (!(cityIntersection.getOccupant() instanceof Settlement)) {
+                    return "build city failed: intersection " + nodeId + " already has a city";
+                }
+                if (cityIntersection.getOccupant().getOwner() != player) {
+                    return "build city failed: you don't own the settlement at intersection " + nodeId;
+                }
+                if (!player.canAfford(Map.of(
+                    ResourceType.WHEAT, 2,
+                    ResourceType.ORE, 3
+                ))) {
+                    return "build city failed: insufficient resources (need 2 WHEAT, 3 ORE)";
+                }
                 if (player.upgradeCity(cityIntersection)) {
                     return "build city " + nodeId;
                 }
-                return "build city failed";
+                return "build city failed: unknown error";
                 
             case ROAD:
                 // find a path between fromNodeId and toNodeId
+                Intersection fromIntersection = board.getIntersectionById(fromNodeId);
+                Intersection toIntersection = board.getIntersectionById(toNodeId);
+                if (fromIntersection == null) {
+                    return "build road failed: invalid intersection id " + fromNodeId;
+                }
+                if (toIntersection == null) {
+                    return "build road failed: invalid intersection id " + toNodeId;
+                }
                 Path path = findPath(board, fromNodeId, toNodeId);
                 if (path == null) {
-                    return "build road failed: no path between " + fromNodeId + " and " + toNodeId;
+                    return "build road failed: no path exists between " + fromNodeId + " and " + toNodeId;
+                }
+                if (path.getOccupant() != null) {
+                    return "build road failed: path between " + fromNodeId + " and " + toNodeId + " is already occupied";
+                }
+                if (!board.canPlaceRoad(path, player)) {
+                    return "build road failed: road must connect to your existing road or building";
+                }
+                if (!player.canAfford(Map.of(
+                    ResourceType.BRICK, 1,
+                    ResourceType.WOOD, 1
+                ))) {
+                    return "build road failed: insufficient resources (need 1 BRICK, 1 WOOD)";
                 }
                 if (player.buildRoad(board, path)) {
                     return "build road " + fromNodeId + "," + toNodeId;
                 }
-                return "build road failed";
+                return "build road failed: unknown error";
                 
             default:
                 return "build failed: unknown build type";

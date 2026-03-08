@@ -18,6 +18,7 @@ import com.assignment1.enums.TurnState;
 import com.assignment1.io.GameStateExporter;
 import com.assignment1.pieces.Building;
 import com.assignment1.player.ComputerPlayer;
+import com.assignment1.player.HumanPlayer;
 import com.assignment1.player.Player;
 
 /** Orchestrates the game simulation loop and player turns. */
@@ -115,6 +116,10 @@ public class Simulator {
 
     /** Executes a single player's turn and prints the action. */
     public void takeTurn(Player player) {
+
+        if (player instanceof HumanPlayer) {
+            System.out.printf("player %d - please make a move (roll, go, list, build settlement/city/road): ", player.getId());
+        }
         String action = player.makeMove(board);
         System.out.println(currentRound + " / " + player.getId() + ": " + action);
 
@@ -242,7 +247,7 @@ public class Simulator {
 
         for (int i = 0; i < initialIntersectionIds.length && i < colors.length; i++) {
             Intersection intersection = board.getIntersectionById(initialIntersectionIds[i]);
-            Player player = new ComputerPlayer(i + 1, colors[i], intersection);
+            Player player = new HumanPlayer(i + 1, colors[i], intersection);
 
             // give initial resources
             player.addResources(ResourceType.BRICK, 1);

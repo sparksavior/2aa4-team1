@@ -107,7 +107,6 @@ public class GameStateExporter {
             }
         } catch (IOException e) {
             System.err.println("Error exporting game state to " + outputPath + ": " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }
