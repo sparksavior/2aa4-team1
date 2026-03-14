@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 // Command to build a settlement, city, or road
-public class BuildCommand extends Command {
+public class BuildCommand implements UndoableCommand {
     
     private BuildType buildType;
     private int nodeId;
@@ -32,6 +32,16 @@ public class BuildCommand extends Command {
         this.fromNodeId = fromNodeId;
         this.toNodeId = toNodeId;
         this.nodeId = -1;
+    }
+
+    @Override
+    public void undo(Player player, Board board) {
+        // TODO: Implement undo
+    }
+    
+    @Override
+    public void redo(Player player, Board board) {
+        // TODO: Implement redo
     }
     
     @Override
