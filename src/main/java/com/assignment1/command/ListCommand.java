@@ -4,7 +4,7 @@ import com.assignment1.board.Board;
 import com.assignment1.player.Player;
 
 // Command to list cards currently in the player's hand
-public class ListCommand extends Command {
+public class ListCommand implements Command {
     
     @Override
     public String execute(Player player, Board board) {
