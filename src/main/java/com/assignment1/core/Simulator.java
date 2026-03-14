@@ -37,6 +37,8 @@ public class Simulator {
 
     private final GameStateExporter exporter;
 
+    private CommandHistory commandHistory = new CommandHistory();
+
     /** Creates a new simulator with the given configuration. */
     public Simulator(GameConfig config) {
         this(config, false);
@@ -247,7 +249,7 @@ public class Simulator {
 
         for (int i = 0; i < initialIntersectionIds.length && i < colors.length; i++) {
             Intersection intersection = board.getIntersectionById(initialIntersectionIds[i]);
-            Player player = new HumanPlayer(i + 1, colors[i], intersection);
+            Player player = new HumanPlayer(i + 1, colors[i], intersection, commandHistory);
 
             // give initial resources
             player.addResources(ResourceType.BRICK, 1);

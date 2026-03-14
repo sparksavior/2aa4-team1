@@ -7,8 +7,6 @@ public class RedoCommand implements Command {
 
     @Override
     public String execute(Player player, Board board) {
-        // TODO: Implement redo
-        return null;
+        return "redo";
     }
-    
 }

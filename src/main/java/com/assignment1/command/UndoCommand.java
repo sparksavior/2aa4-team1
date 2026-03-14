@@ -7,8 +7,6 @@ public class UndoCommand implements Command {
 
     @Override
     public String execute(Player player, Board board) {
-        // TODO: Implement undo
-        return null;
+        return "undo";
     }
-    
 }
