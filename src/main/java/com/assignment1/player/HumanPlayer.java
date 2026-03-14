@@ -7,29 +7,36 @@ import com.assignment1.command.GoCommand;
 import com.assignment1.command.RollCommand;
 import com.assignment1.core.CommandParser;
 import com.assignment1.enums.PlayerColor;
+import com.assignment1.command.RedoCommand;
+import com.assignment1.command.UndoCommand;
+import com.assignment1.command.UndoableCommand;
+import com.assignment1.core.CommandHistory;
 
 import java.util.Scanner;
 
 // This class represents the human player in the game that receives input from the command line.
 public class HumanPlayer extends Player {
 
+    private CommandHistory commandHistory;
     private CommandParser parser;
     private Scanner scanner;
 
     // Creates a human player with the given ID and color.
-    public HumanPlayer(int id, PlayerColor color) {
+    public HumanPlayer(int id, PlayerColor color, CommandHistory commandHistory) {
         super(id, color);
         this.parser = new CommandParser();
         this.scanner = new Scanner(System.in);
+        this.commandHistory = commandHistory;
     }
 
     // Creates a human player with an initial settlement at the given intersection.
-    public HumanPlayer(int id, PlayerColor color, Intersection initialSettlement) {
+
+    public HumanPlayer(int id, PlayerColor color, Intersection initialSettlement, CommandHistory commandHistory) {
         super(id, color, initialSettlement);
         this.parser = new CommandParser();
         this.scanner = new Scanner(System.in);
+        this.commandHistory = commandHistory;
     }
-
     // Executes a human player's turn by parsing and executing commands from input.
     @Override
     public String makeMove(Board board) {
@@ -43,17 +50,38 @@ public class HumanPlayer extends Player {
                 continue;
             }
 
-            if (cmd == null)
-                continue; // invalid command, try again
+            if (cmd == null) {
+                continue;
+            }
 
-            String result = cmd.execute(this, board);
+            String result;
 
-            if (cmd instanceof GoCommand)
-                return result; // turn ends
-            if (cmd instanceof RollCommand)
-                return result; // pass roll back to Simulator
+            if (cmd instanceof UndoCommand) {
+                result = commandHistory.undo(this, board);
+                System.out.println(result);
+                continue;
+            }
 
-            // For other commands (List, Build), log result to console
+            if (cmd instanceof RedoCommand) {
+                result = commandHistory.redo(this, board);
+                System.out.println(result);
+                continue;
+            }
+
+            result = cmd.execute(this, board);
+
+            if (cmd instanceof UndoableCommand && result != null && !result.contains("failed")) {
+                commandHistory.record((UndoableCommand) cmd);
+            }
+
+            if (cmd instanceof GoCommand) {
+                return result;
+            }
+
+            if (cmd instanceof RollCommand) {
+                return result;
+            }
+
             if (result != null) {
                 System.out.println(result);
             }

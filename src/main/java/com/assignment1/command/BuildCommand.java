@@ -11,12 +11,15 @@ import java.util.List;
 import java.util.Map;
 
 // Command to build a settlement, city, or road
-public class BuildCommand extends Command {
+public class BuildCommand implements UndoableCommand {
     
     private BuildType buildType;
     private int nodeId;
     private int fromNodeId;
     private int toNodeId;
+    private Path builtPath;
+    private Intersection builtIntersection;
+    private boolean executedSuccessfully = false;
     
     // Builds a settlement/city at the given intersection
     public BuildCommand(BuildType buildType, int nodeId) {
@@ -32,6 +35,51 @@ public class BuildCommand extends Command {
         this.fromNodeId = fromNodeId;
         this.toNodeId = toNodeId;
         this.nodeId = -1;
+    }
+
+    @Override
+    public String undo(Player player, Board board) {
+        if (!executedSuccessfully) {
+            return "undo failed";
+        }
+
+        switch (buildType) {
+            case SETTLEMENT:
+                if (builtIntersection != null) {
+                    builtIntersection.setOccupant(null);
+                    player.addResources(ResourceType.BRICK, 1);
+                    player.addResources(ResourceType.WOOD, 1);
+                    player.addResources(ResourceType.WHEAT, 1);
+                    player.addResources(ResourceType.SHEEP, 1);
+                    return "undo build settlement " + nodeId;
+                }
+                break;
+
+            case CITY:
+                if (builtIntersection != null) {
+                    builtIntersection.setOccupant(new Settlement(player));
+                    player.addResources(ResourceType.WHEAT, 2);
+                    player.addResources(ResourceType.ORE, 3);
+                    return "undo build city " + nodeId;
+                }
+                break;
+
+            case ROAD:
+                if (builtPath != null) {
+                    builtPath.setOccupant(null);
+                    player.addResources(ResourceType.BRICK, 1);
+                    player.addResources(ResourceType.WOOD, 1);
+                    return "undo build road " + fromNodeId + "," + toNodeId;
+                }
+                break;
+        }
+
+        return "undo failed";
+    }
+
+    @Override
+    public String redo(Player player, Board board) {
+        return execute(player, board);
     }
     
     @Override
@@ -54,6 +102,8 @@ public class BuildCommand extends Command {
                     return "build settlement failed: insufficient resources (need 1 BRICK, 1 WOOD, 1 WHEAT, 1 SHEEP)";
                 }
                 if (player.buildSettlement(board, intersection)) {
+                    builtIntersection = intersection;
+                    executedSuccessfully = true;
                     return "build settlement " + nodeId;
                 }
                 return "build settlement failed: unknown error";
@@ -79,6 +129,8 @@ public class BuildCommand extends Command {
                     return "build city failed: insufficient resources (need 2 WHEAT, 3 ORE)";
                 }
                 if (player.upgradeCity(cityIntersection)) {
+                    builtIntersection = cityIntersection;
+                    executedSuccessfully = true;
                     return "build city " + nodeId;
                 }
                 return "build city failed: unknown error";
@@ -110,6 +162,8 @@ public class BuildCommand extends Command {
                     return "build road failed: insufficient resources (need 1 BRICK, 1 WOOD)";
                 }
                 if (player.buildRoad(board, path)) {
+                    builtPath = path;
+                    executedSuccessfully = true;
                     return "build road " + fromNodeId + "," + toNodeId;
                 }
                 return "build road failed: unknown error";
