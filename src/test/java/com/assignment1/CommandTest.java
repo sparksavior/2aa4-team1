@@ -3,9 +3,11 @@ package com.assignment1;
 import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.command.BuildCommand;
+import com.assignment1.command.CommandResult;
 import com.assignment1.command.GoCommand;
 import com.assignment1.command.ListCommand;
 import com.assignment1.command.RollCommand;
+import com.assignment1.core.CommandHistory;
 import com.assignment1.config.GameConfig;
 import com.assignment1.enums.BuildType;
 import com.assignment1.enums.PlayerColor;
@@ -24,7 +26,9 @@ class CommandTest {
         board.setup();
         ComputerPlayer p = new ComputerPlayer(0, PlayerColor.RED);
 
-        assertEquals("go", cmd.execute(p, board));
+        CommandResult result = cmd.execute(p, board);
+        assertEquals("go", result.getMessage());
+        assertTrue(result.shouldEndTurn());
     }
 
     @Test
@@ -34,7 +38,9 @@ class CommandTest {
         board.setup();
         ComputerPlayer p = new ComputerPlayer(0, PlayerColor.RED);
 
-        assertEquals("roll", cmd.execute(p, board));
+        CommandResult result = cmd.execute(p, board);
+        assertEquals("roll", result.getMessage());
+        assertTrue(result.shouldEndTurn());
     }
 
     @Test
@@ -46,9 +52,11 @@ class CommandTest {
         ComputerPlayer p = new ComputerPlayer(7, PlayerColor.BLUE);
         p.addResources(ResourceType.WOOD, 2);
 
-        String out = cmd.execute(p, board);
+        CommandResult result = cmd.execute(p, board);
+        String out = result.getMessage();
         assertTrue(out.contains("player 7 hand:"), "Output should include player id");
         assertTrue(out.contains("WOOD"), "Output should include resource summary");
+        assertFalse(result.shouldEndTurn());
     }
 
     @Test
@@ -57,8 +65,9 @@ class CommandTest {
         board.setup();
         ComputerPlayer p = new ComputerPlayer(0, PlayerColor.RED);
 
-        BuildCommand cmd = new BuildCommand(BuildType.SETTLEMENT, 9999);
-        String out = cmd.execute(p, board);
+        BuildCommand cmd = new BuildCommand(BuildType.SETTLEMENT, 9999, new CommandHistory());
+        CommandResult result = cmd.execute(p, board);
+        String out = result.getMessage();
 
         assertTrue(out.startsWith("build settlement failed: invalid intersection id"),
                 "Should return invalid intersection message");
@@ -79,8 +88,9 @@ class CommandTest {
         Intersection i = board.getIntersectionById(nodeId);
         assertNotNull(i);
 
-        BuildCommand cmd = new BuildCommand(BuildType.SETTLEMENT, nodeId);
-        String out = cmd.execute(p, board);
+        BuildCommand cmd = new BuildCommand(BuildType.SETTLEMENT, nodeId, new CommandHistory());
+        CommandResult result = cmd.execute(p, board);
+        String out = result.getMessage();
 
         assertEquals("build settlement " + nodeId, out);
         assertNotNull(i.getOccupant(), "Intersection should be occupied after successful build");
@@ -92,8 +102,10 @@ class CommandTest {
         board.setup();
         ComputerPlayer p = new ComputerPlayer(0, PlayerColor.RED);
 
-        BuildCommand cmd = new BuildCommand(BuildType.ROAD, 9999);
-        String out = cmd.execute(p, board);
+        // Note: BuildCommand for road uses (fromNodeId, toNodeId) constructor
+        BuildCommand cmd = new BuildCommand(9999, 9998, new CommandHistory());
+        CommandResult result = cmd.execute(p, board);
+        String out = result.getMessage();
 
         assertTrue(out.startsWith("build road failed"),
                 "Should indicate build road failed");

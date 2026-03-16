@@ -247,7 +247,7 @@ public class Simulator {
 
         for (int i = 0; i < initialIntersectionIds.length && i < colors.length; i++) {
             Intersection intersection = board.getIntersectionById(initialIntersectionIds[i]);
-            Player player = new HumanPlayer(i + 1, colors[i], intersection);
+            Player player = new HumanPlayer(i + 1, colors[i], intersection, new CommandHistory());
 
             // give initial resources
             player.addResources(ResourceType.BRICK, 1);

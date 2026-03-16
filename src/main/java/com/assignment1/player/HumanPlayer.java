@@ -3,10 +3,10 @@ package com.assignment1.player;
 import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.command.Command;
-import com.assignment1.command.GoCommand;
-import com.assignment1.command.RollCommand;
+import com.assignment1.command.CommandResult;
 import com.assignment1.core.CommandParser;
 import com.assignment1.enums.PlayerColor;
+import com.assignment1.core.CommandHistory;
 
 import java.util.Scanner;
 
@@ -17,19 +17,19 @@ public class HumanPlayer extends Player {
     private Scanner scanner;
 
     // Creates a human player with the given ID and color.
-    public HumanPlayer(int id, PlayerColor color) {
+    public HumanPlayer(int id, PlayerColor color, CommandHistory commandHistory) {
         super(id, color);
-        this.parser = new CommandParser();
+        this.parser = new CommandParser(commandHistory);
         this.scanner = new Scanner(System.in);
     }
 
     // Creates a human player with an initial settlement at the given intersection.
-    public HumanPlayer(int id, PlayerColor color, Intersection initialSettlement) {
+
+    public HumanPlayer(int id, PlayerColor color, Intersection initialSettlement, CommandHistory commandHistory) {
         super(id, color, initialSettlement);
-        this.parser = new CommandParser();
+        this.parser = new CommandParser(commandHistory);
         this.scanner = new Scanner(System.in);
     }
-
     // Executes a human player's turn by parsing and executing commands from input.
     @Override
     public String makeMove(Board board) {
@@ -43,19 +43,18 @@ public class HumanPlayer extends Player {
                 continue;
             }
 
-            if (cmd == null)
-                continue; // invalid command, try again
+            if (cmd == null) {
+                continue;
+            }
 
-            String result = cmd.execute(this, board);
+            CommandResult result = cmd.execute(this, board);
 
-            if (cmd instanceof GoCommand)
-                return result; // turn ends
-            if (cmd instanceof RollCommand)
-                return result; // pass roll back to Simulator
+            if (result.shouldDisplay()) {
+                System.out.println(result.getMessage());
+            }
 
-            // For other commands (List, Build), log result to console
-            if (result != null) {
-                System.out.println(result);
+            if (result.shouldEndTurn()) {
+                return result.getMessage();
             }
         }
     }

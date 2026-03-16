@@ -4,11 +4,11 @@ import com.assignment1.board.Board;
 import com.assignment1.player.Player;
 
 // Command to roll the dice and collect resources
-public class RollCommand extends Command {
+public class RollCommand implements Command {
     
     @Override
-    public String execute(Player player, Board board) {
+    public CommandResult execute(Player player, Board board) {
         // roll dice and distribute resources will be handled by Simulator
-        return "roll";
+        return CommandResult.endTurn("roll");
     }
 }
