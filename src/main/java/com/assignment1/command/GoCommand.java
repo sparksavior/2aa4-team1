@@ -7,8 +7,7 @@ import com.assignment1.player.Player;
 public class GoCommand implements Command {
     
     @Override
-    public String execute(Player player, Board board) {
-        // signal to proceed to next turn
-        return "go";
+    public CommandResult execute(Player player, Board board) {
+        return CommandResult.endTurn("go");
     }
 }

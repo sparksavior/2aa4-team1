@@ -7,8 +7,8 @@ import com.assignment1.player.Player;
 public class RollCommand implements Command {
     
     @Override
-    public String execute(Player player, Board board) {
+    public CommandResult execute(Player player, Board board) {
         // roll dice and distribute resources will be handled by Simulator
-        return "roll";
+        return CommandResult.endTurn("roll");
     }
 }

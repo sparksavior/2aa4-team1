@@ -7,8 +7,9 @@ import com.assignment1.player.Player;
 public class ListCommand implements Command {
     
     @Override
-    public String execute(Player player, Board board) {
+    public CommandResult execute(Player player, Board board) {
         // list resources in player's hand
-        return "player " + player.getId() + " hand: " + player.getResourceHandSummary();
+        String message = "player " + player.getId() + " hand: " + player.getResourceHandSummary();
+        return CommandResult.continueTurn(message);
     }
 }
