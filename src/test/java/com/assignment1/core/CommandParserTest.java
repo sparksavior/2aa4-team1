@@ -9,10 +9,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CommandParserTest {
 
     private CommandParser parser;
+    private CommandHistory commandHistory;
 
     @BeforeEach
     public void setUp() {
-        parser = new CommandParser();
+        commandHistory = new CommandHistory();
+        parser = new CommandParser(commandHistory);
     }
 
     @Test
