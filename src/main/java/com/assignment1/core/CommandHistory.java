@@ -1,17 +1,23 @@
 package com.assignment1.core;
 
 import com.assignment1.board.Board;
-import com.assignment1.command.UndoableCommand;
+import com.assignment1.command.ReversibleCommand;
 import com.assignment1.player.Player;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class CommandHistory {
 
-    private Stack<UndoableCommand> undoStack = new Stack<>();
-    private Stack<UndoableCommand> redoStack = new Stack<>();
+    private Deque<ReversibleCommand> undoStack;
+    private Deque<ReversibleCommand> redoStack;
 
-    public void record(UndoableCommand cmd) {
+    public CommandHistory() {
+        this.undoStack = new ArrayDeque<>();
+        this.redoStack = new ArrayDeque<>();
+    }
+
+    public void record(ReversibleCommand cmd) {
         undoStack.push(cmd);
         redoStack.clear();
     }
@@ -21,11 +27,11 @@ public class CommandHistory {
             return "nothing to undo";
         }
 
-        UndoableCommand cmd = undoStack.pop();
-        cmd.undo(player, board);
+        ReversibleCommand cmd = undoStack.pop();
+        String message = cmd.undo(player, board);
         redoStack.push(cmd);
 
-        return "undo successful";
+        return message;
     }
 
     public String redo(Player player, Board board) {
@@ -33,10 +39,10 @@ public class CommandHistory {
             return "nothing to redo";
         }
 
-        UndoableCommand cmd = redoStack.pop();
-        cmd.redo(player, board);
+        ReversibleCommand cmd = redoStack.pop();
+        String message = cmd.redo(player, board);
         undoStack.push(cmd);
 
-        return "redo successful";
+        return message;
     }
 }
