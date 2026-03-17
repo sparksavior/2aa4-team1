@@ -35,7 +35,7 @@ public class ExcessCardsConstraint extends ConstraintRule {
         while (player.getTotalCards() > 7) {
             boolean spent = false;
 
-            // Try upgrading a settlement to a city (costs 2 Wheat + 3 Ore = 5 cards)
+            // Try upgrading a settlement to a city
             for (Intersection i : board.getIntersections()) {
                 if (i.getOccupant() != null && i.getOccupant().getOwner() == player) {
                     if (player.upgradeCity(i)) {
@@ -47,7 +47,7 @@ public class ExcessCardsConstraint extends ConstraintRule {
             }
             if (spent && player.getTotalCards() <= 7) break;
 
-            // Try building a settlement (costs 1 Brick + 1 Wood + 1 Wheat + 1 Sheep = 4 cards)
+            // Try building a settlement
             if (!spent) {
                 for (Intersection i : board.getIntersections()) {
                     if (i.getOccupant() == null && board.canPlaceSettlement(i, player)) {
@@ -61,7 +61,7 @@ public class ExcessCardsConstraint extends ConstraintRule {
             }
             if (spent && player.getTotalCards() <= 7) break;
 
-            // Try building a road (costs 1 Brick + 1 Wood = 2 cards)
+            // Try building a road
             if (!spent) {
                 Path extensionPath = board.findExtensionPath(player);
                 if (extensionPath != null && player.buildRoad(board, extensionPath)) {
