@@ -18,13 +18,11 @@ public class SpendRule extends ValueRule {
 
     @Override
     public boolean canApply(Player player, Board board) {
-        // TODO: Implement canApply logic
         return true;
     }
 
     @Override
     public String apply(Player player, Board board) {
-        // TODO: Implement apply logic
-        return "";
+        return "spend cards";
     }
 }

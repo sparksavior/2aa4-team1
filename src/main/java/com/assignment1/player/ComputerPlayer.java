@@ -1,13 +1,15 @@
 package com.assignment1.player;
 
+import java.util.Optional;
+
+import com.assignment1.ai.Rule;
+import com.assignment1.ai.RuleEvaluator;
 import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.board.Path;
 import com.assignment1.enums.PlayerColor;
 import com.assignment1.pieces.Building;
 import com.assignment1.pieces.Settlement;
-
-import java.util.Optional;
 
 // This class represents the computer player in the game with automated agent behavior.
 public class ComputerPlayer extends Player {
@@ -25,12 +27,12 @@ public class ComputerPlayer extends Player {
     // Agent behavior: attempts to build when holding more than 7 cards.
     @Override
     public String makeMove(Board board) {
-        if (getTotalCards() <= 7) return "no-op";
-
-        return tryUpgradeCity(board)
-            .or(() -> tryBuildSettlement(board))
-            .or(() -> tryBuildRoad(board))
-            .orElse("no-op");
+        RuleEvaluator evaluator = new RuleEvaluator();
+        Optional<Rule> rule = evaluator.evaluate(this, board);
+        if (rule.isPresent()) {
+            return rule.get().apply(this, board);
+        }
+        return "no-op";
     }
 
     private Optional<String> tryUpgradeCity(Board board) {

@@ -1,11 +1,11 @@
 package com.assignment1.ai;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import com.assignment1.board.Board;
 import com.assignment1.player.Player;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Optional;
 
 /**
  * Evaluates the rules and returns the best rule to apply.
@@ -18,19 +18,57 @@ public class RuleEvaluator {
     private List<ConstraintRule> constraintRules;
 
     public RuleEvaluator() {
-        // TODO: Initialize the lists
+        this.valueRules = new ArrayList<>();
+        this.constraintRules = new ArrayList<>();
+
+        // Add value rules
+        valueRules.add(new com.assignment1.ai.rules.VictoryPointRule());
+        valueRules.add(new com.assignment1.ai.rules.BuildRule());
+        valueRules.add(new com.assignment1.ai.rules.SpendRule());
+
+        // Constraints 
+        constraintRules.add(new com.assignment1.ai.rules.ExcessCardsConstraint());
+        constraintRules.add(new com.assignment1.ai.rules.RoadConnectionConstraint());
+        constraintRules.add(new com.assignment1.ai.rules.LongestRoadDefenseConstraint());
     }
 
     public Optional<Rule> evaluate(Player player, Board board) {
-        // TODO: Evaluate the rules and return the best rule
-        // Step 1: check constraints first (chain of responsibility pattern)
-        // Step 2: evaluate value rules (strategy pattern)
-        return Optional.empty();
+        // Check constraints first
+        Rule bestConstraint = null;
+        double highestPriority = -1;
+        for (ConstraintRule constraint : constraintRules) {
+            if (constraint.canApply(player, board)) {
+                double priority = constraint.evaluate(player, board);
+
+                if (priority > highestPriority) {
+                    highestPriority = priority;
+                    bestConstraint = constraint;
+                }
+            }
+        }
+        if (bestConstraint != null && highestPriority > 0) {
+            return Optional.of(bestConstraint);
+        }
+
+        // Evaluate value rules
+        Rule bestRule = null;
+        double bestValue = -1;
+        for (ValueRule rule : valueRules) {
+            if (rule.canApply(player, board)) {
+                double value = rule.evaluate(player, board);
+                if (value > bestValue) {
+                    bestValue = value;
+                    bestRule = rule;
+                }
+            }
+        }
+        return Optional.ofNullable(bestRule);
     }
 
     public List<Rule> getAll() {
-        // TODO: Return all the rules
-        return new ArrayList<>();
+        List<Rule> all = new ArrayList<>();
+        all.addAll(constraintRules);
+        all.addAll(valueRules);
+        return all;
     }
-    
 }
