@@ -14,7 +14,6 @@ import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.board.Path;
 import com.assignment1.enums.ResourceType;
-import com.assignment1.pieces.Road;
 import com.assignment1.player.Player;
 
 /**
@@ -26,7 +25,6 @@ public class RoadConnectionConstraint extends ConstraintRule {
 
     private static final double PRIORITY = 10.0;
     
-    // Cost of a road
     private static final Map<ResourceType, Integer> ROAD_COST = new HashMap<>();
     static {
         ROAD_COST.put(ResourceType.BRICK, 1);
@@ -49,19 +47,13 @@ public class RoadConnectionConstraint extends ConstraintRule {
             return false;
         }
 
-        List<Path> myRoads = new ArrayList<>();
-        for (Path p : board.getPaths()) {
-            if (p.getOccupant() != null && p.getOccupant() instanceof Road) {
-                if (p.getOccupant().getOwner() == player) {
-                    myRoads.add(p);
-                }
-            }
-        }
+        List<Path> myRoads = board.getRoadsOwnedBy(player);
 
         if (myRoads.isEmpty()) {
             return false;
         }
 
+        // Group roads into connected networks using BFS
         List<Set<Intersection>> networks = new ArrayList<>();
         Set<Path> visitedRoads = new HashSet<>();
 
@@ -78,9 +70,8 @@ public class RoadConnectionConstraint extends ConstraintRule {
                 networkNodes.addAll(curr.getEndpoints());
 
                 for (Intersection end : curr.getEndpoints()) {
-                    for (Path adj : board.getPaths()) {
-                        if (adj == curr) continue;
-                        if (adj.getEndpoints().contains(end) && myRoads.contains(adj) && !visitedRoads.contains(adj)) {
+                    for (Path adj : board.getAdjacentPaths(end)) {
+                        if (myRoads.contains(adj) && !visitedRoads.contains(adj)) {
                             visitedRoads.add(adj);
                             queue.add(adj);
                         }
@@ -94,28 +85,24 @@ public class RoadConnectionConstraint extends ConstraintRule {
             return false;
         }
 
+        // Find shortest bridging path between any two networks
         bestPathToBuild = null;
-        int shortestDistanceFound = Integer.MAX_VALUE;
-
         for (int i = 0; i < networks.size(); i++) {
             for (int j = i + 1; j < networks.size(); j++) {
-                Set<Intersection> netA = networks.get(i);
-                Set<Intersection> netB = networks.get(j);
-
-                for (Intersection startNode : netA) {
-                    Path firstStep = bfsShortestPath(board, startNode, netB, player);
+                for (Intersection startNode : networks.get(i)) {
+                    Path firstStep = bfsShortestPath(board, startNode, networks.get(j));
                     if (firstStep != null) {
                         bestPathToBuild = firstStep;
-                        return true; 
+                        return true;
                     }
                 }
             }
         }
 
-        return bestPathToBuild != null;
+        return false;
     }
     
-    private Path bfsShortestPath(Board board, Intersection start, Set<Intersection> targetNet, Player player) {
+    private Path bfsShortestPath(Board board, Intersection start, Set<Intersection> targetNet) {
         Queue<Intersection> queue = new LinkedList<>();
         Map<Intersection, Integer> distances = new HashMap<>();
         Map<Intersection, Path> firstMoveMade = new HashMap<>();
@@ -127,27 +114,22 @@ public class RoadConnectionConstraint extends ConstraintRule {
             Intersection curr = queue.poll();
             int dist = distances.get(curr);
 
-            if (dist > 2) continue; 
+            if (dist > 2) continue;
             
-            if (targetNet.contains(curr) && dist > 0 && dist <= 2) {
+            if (targetNet.contains(curr) && dist > 0) {
                 return firstMoveMade.get(curr);
             }
 
-            for (Path path : board.getPaths()) {
-                if (path.getEndpoints().contains(curr)) {
-                    if (path.getOccupant() != null) continue;
+            for (Path path : board.getAdjacentPaths(curr)) {
+                if (path.getOccupant() != null) continue;
                     
-                    Intersection next = path.getEndpoints().get(0) == curr ? path.getEndpoints().get(1) : path.getEndpoints().get(0);
+                Intersection next = path.getEndpoints().get(0) == curr
+                    ? path.getEndpoints().get(1) : path.getEndpoints().get(0);
                     
-                    if (!distances.containsKey(next)) {
-                        distances.put(next, dist + 1);
-                        queue.add(next);
-                        if (dist == 0) {
-                            firstMoveMade.put(next, path);
-                        } else {
-                            firstMoveMade.put(next, firstMoveMade.get(curr));
-                        }
-                    }
+                if (!distances.containsKey(next)) {
+                    distances.put(next, dist + 1);
+                    queue.add(next);
+                    firstMoveMade.put(next, dist == 0 ? path : firstMoveMade.get(curr));
                 }
             }
         }
