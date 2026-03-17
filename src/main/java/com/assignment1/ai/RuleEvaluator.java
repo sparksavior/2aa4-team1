@@ -3,6 +3,10 @@ package com.assignment1.ai;
 import com.assignment1.board.Board;
 import com.assignment1.player.Player;
 
+import com.assignment1.ai.rules.ExcessCardsConstraint;
+import com.assignment1.ai.rules.LongestRoadDefenseConstraint;
+import com.assignment1.ai.rules.RoadConnectionConstraint;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -18,19 +22,29 @@ public class RuleEvaluator {
     private List<ConstraintRule> constraintRules;
 
     public RuleEvaluator() {
-        // TODO: Initialize the lists
+        this.valueRules = new ArrayList<>();
+        this.constraintRules = new ArrayList<>();
+        
+        this.constraintRules.add(new ExcessCardsConstraint());
+        this.constraintRules.add(new RoadConnectionConstraint());
+        this.constraintRules.add(new LongestRoadDefenseConstraint());
     }
 
     public Optional<Rule> evaluate(Player player, Board board) {
-        // TODO: Evaluate the rules and return the best rule
-        // Step 1: check constraints first (chain of responsibility pattern)
-        // Step 2: evaluate value rules (strategy pattern)
+        for (ConstraintRule constraint : constraintRules) {
+            if (constraint.evaluate(player, board) > 0.0) {
+                return Optional.of(constraint);
+            }
+        }
+        
         return Optional.empty();
     }
 
     public List<Rule> getAll() {
-        // TODO: Return all the rules
-        return new ArrayList<>();
+        List<Rule> all = new ArrayList<>();
+        all.addAll(constraintRules);
+        all.addAll(valueRules);
+        return all;
     }
     
 }
