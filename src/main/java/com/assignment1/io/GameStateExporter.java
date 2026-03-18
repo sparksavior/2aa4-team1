@@ -35,7 +35,7 @@ public class GameStateExporter implements Observer {
     }
 
     // Exports the current board state into JSON format
-    public void export(Board board) {
+    private void export(Board board) {
         try {
             java.nio.file.Path filePath = Paths.get(outputPath);
             
