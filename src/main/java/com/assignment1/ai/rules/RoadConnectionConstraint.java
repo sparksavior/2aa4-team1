@@ -25,11 +25,11 @@ public class RoadConnectionConstraint extends ConstraintRule {
 
     private static final double PRIORITY = 10.0;
     
-    private static final Map<ResourceType, Integer> ROAD_COST = new HashMap<>();
-    static {
-        ROAD_COST.put(ResourceType.BRICK, 1);
-        ROAD_COST.put(ResourceType.WOOD, 1);
-    }
+    private static final Map<ResourceType, Integer> ROAD_COST =
+        Map.of(
+            ResourceType.BRICK, 1,
+            ResourceType.WOOD, 1
+        );
 
     private Path bestPathToBuild = null;
 
