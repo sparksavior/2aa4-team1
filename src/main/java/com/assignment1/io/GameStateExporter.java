@@ -117,6 +117,6 @@ public class GameStateExporter implements Observer {
      */
     @Override
     public void update(Board board) {
-        // TODO: Implement the update method
+        export(board);
     }
 }

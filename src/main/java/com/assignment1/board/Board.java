@@ -26,6 +26,7 @@ public class Board implements Subject {
     private Map<Integer, List<Tile>> tilesByProductionNumber;
     private Map<Intersection, List<Path>> pathsByIntersection;
     private Robber robber;
+    private final Set<Observer> observers = new HashSet<>();
 
     /** Creates a new board with the given configuration. */
     public Board(GameConfig config) {
@@ -234,17 +235,25 @@ public class Board implements Subject {
 
     @Override
     public void addObserver(Observer observer) {
-        // TODO: Implement the addObserver method
+        if (observer == null) {
+            return;
+        }
+        observers.add(observer);
     }
 
     @Override
     public void removeObserver(Observer observer) {
-        // TODO: Implement the removeObserver method
+        if (observer == null) {
+            return;
+        }
+        observers.remove(observer);
     }
 
     @Override
     public void notifyObservers() {
-        // TODO: Implement the notifyObservers method
+        for (Observer observer : observers) {
+            observer.update(this);
+        }
     }
 
     /** Validates road placement: path must connect to player's existing road or building. */
