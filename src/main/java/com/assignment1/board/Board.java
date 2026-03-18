@@ -9,8 +9,10 @@ import com.assignment1.player.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 /** Manages the game board: tiles, intersections, paths, and placement validation. */
@@ -300,6 +302,165 @@ public class Board {
             }
         }
     }
+
+    /* Returns all road paths currently occupied by the given player. */
+    public List<Path> getRoadsOwnedBy(Player player) {
+        List<Path> owned = new ArrayList<>();
+        for (Path path : paths) {
+            Road road = path.getOccupant();
+            if (road != null && road.getOwner() == player) {
+                owned.add(path);
+            }
+        }
+        return owned;
+    }
+
+    /* Returns all paths incident to the given intersection. */
+    public List<Path> getAdjacentPaths(Intersection intersection) {
+        List<Path> adjacent = pathsByIntersection.get(intersection);
+        List<Path> result = new ArrayList<>();
+        if (adjacent != null) {
+            result.addAll(adjacent);
+        }
+        return result;
+    }
+
+    /* Returns intersections directly connected to the given intersection. */
+    public List<Intersection> getAdjacentIntersections(Intersection intersection) {
+        return new ArrayList<>(intersection.getNeighbors());
+    }
+
+    /* Returns all unoccupied paths where a road could potentially be built. */
+    public List<Path> getEmptyPaths() {
+        List<Path> empty = new ArrayList<>();
+        for (Path path : paths) {
+            if (path.getOccupant() == null) {
+                empty.add(path);
+            }
+        }
+        return empty;
+    }
+
+    /**
+     * Returns the length of the longest continuous road owned by the given player.
+     */
+    public int getLongestRoadLength(Player player) {
+        List<Path> myRoads = getRoadsOwnedBy(player);
+        if (myRoads.isEmpty()) {
+            return 0;
+        }
+
+        int maxLen = 0;
+
+        // Treat each road as a potential "center" edge and grow in both directions
+        for (Path edge : myRoads) {
+            List<Intersection> endpoints = edge.getEndpoints();
+            Intersection a = endpoints.get(0);
+            Intersection b = endpoints.get(1);
+
+            // both endpoints blocked by other players
+            if (!canUseIntersectionForPlayer(a, player) && !canUseIntersectionForPlayer(b, player)) {
+                continue;
+            }
+
+            Set<Path> visited = new HashSet<>();
+            visited.add(edge);
+
+            int leftLen = canUseIntersectionForPlayer(a, player) ? dfsLongestRoad(a, edge, myRoads, visited, player) : 0;
+            int rightLen = canUseIntersectionForPlayer(b, player) ? dfsLongestRoad(b, edge, myRoads, visited, player) : 0;
+
+            int total = leftLen + 1 + rightLen;
+            if (total > maxLen) {
+                maxLen = total;
+            }
+        }
+
+        return maxLen;
+    }
+
+    /* Returns true if the intersection can be used by the given player. */
+    private boolean canUseIntersectionForPlayer(Intersection intersection, Player owner) {
+        if (intersection.getOccupant() == null) {
+            return true;
+        }
+        return intersection.getOccupant().getOwner() == owner;
+    }
+
+    /**
+     * Returns the maximum length of the longest road that can be formed starting from
+     * the given intersection, without reusing roads and without passing through
+     * intersections blocked by other players.
+     */
+    private int dfsLongestRoad(Intersection current, Path p, List<Path> roads, Set<Path> visited, Player owner) {
+        int max = 0;
+
+        for (Path nextEdge : roads) {
+            // skip already visited edge
+            if (nextEdge == p || visited.contains(nextEdge)) {
+                continue;
+            }
+            // skip edge that does not connect to the current intersection
+            if (!nextEdge.getEndpoints().contains(current)) {
+                continue;
+            }
+
+            Intersection nextIntersection =
+                nextEdge.getEndpoints().get(0) == current
+                    ? nextEdge.getEndpoints().get(1)
+                    : nextEdge.getEndpoints().get(0);
+
+            // block by other players
+            if (!canUseIntersectionForPlayer(nextIntersection, owner)) {
+                continue;
+            }
+
+            visited.add(nextEdge);
+            int depth = 1 + dfsLongestRoad(nextIntersection, nextEdge, roads, visited, owner);
+            visited.remove(nextEdge); // backtrack
+
+            if (depth > max) {
+                max = depth;
+            }
+        }
+
+        return max;
+    }
+
+    /**
+     * Returns a path where the given player could build a road to extend their network,
+     * or null if no reasonable extension exists.
+     */
+    public Path findExtensionPath(Player player) {
+        for (Path p : paths) {
+            if (p.getOccupant() == null && canPlaceRoad(p, player)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns all opponent players currently present on the board.
+     */
+    public List<Player> getOpponentPlayers(Player me) {
+        Set<Player> opponents = new HashSet<>();
+
+        for (Intersection i : intersections) {
+            if (i.getOccupant() != null && i.getOccupant().getOwner() != me) {
+                opponents.add(i.getOccupant().getOwner());
+            }
+        }
+
+        for (Path p : paths) {
+            if (p.getOccupant() != null && p.getOccupant().getOwner() != me) {
+                opponents.add(p.getOccupant().getOwner());
+            }
+        }
+
+        return new ArrayList<>(opponents);
+    }
+
+    
     
     private ResourceType terrainToResource(TerrainType terrain) {
         switch (terrain) {

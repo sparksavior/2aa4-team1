@@ -113,7 +113,7 @@ public abstract class Player {
     public abstract String makeMove(Board board);
 
     /** Returns the total number of resource cards in the player's hand. */
-    protected int getTotalCards() {
+    public int getTotalCards() {
         int total = 0;
         for (ResourceType type : ResourceType.values()) {
             total += resourceHand.getOrDefault(type, 0);
