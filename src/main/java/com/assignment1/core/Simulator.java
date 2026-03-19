@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
+import com.assignment1.ai.RuleEvaluator;
 import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.board.Tile;
@@ -243,18 +244,22 @@ public class Simulator {
     private void createPlayers() {
         // place one settlement per player at valid intersections
         int[] initialIntersectionIds = {0, 24, 32, 40};
-        PlayerColor[] colors = {PlayerColor.RED, PlayerColor.BLUE, PlayerColor.WHITE, PlayerColor.ORANGE};
+        PlayerColor[] colors = PlayerColor.values();
+        
+        RuleEvaluator evaluator = new RuleEvaluator(); // shared instance for all computer players
 
-        for (int i = 0; i < initialIntersectionIds.length && i < colors.length; i++) {
+        for (int i = 0; i < 4; i++) {
             Intersection intersection = board.getIntersectionById(initialIntersectionIds[i]);
-            Player player = new HumanPlayer(i + 1, colors[i], intersection, new CommandHistory());
+
+            // note: not a good design (violates OCP), switch to Factory pattern if needed in the future
+            Player player = i == 0 ? // assign 1st player to human player (for testing/debugging)
+                new HumanPlayer(i + 1, colors[i], intersection, new CommandHistory()) :
+                new ComputerPlayer(i + 1, colors[i], intersection, evaluator);
 
             // give initial resources
-            player.addResources(ResourceType.BRICK, 1);
-            player.addResources(ResourceType.WOOD, 1);
-            player.addResources(ResourceType.WHEAT, 1);
-            player.addResources(ResourceType.SHEEP, 1);
-            player.addResources(ResourceType.ORE, 1);
+            for (ResourceType resource : ResourceType.values()) {
+                player.addResources(resource, 1);
+            }
 
             players.add(player);
         }

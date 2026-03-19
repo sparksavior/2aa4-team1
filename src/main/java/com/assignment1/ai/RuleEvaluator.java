@@ -3,6 +3,7 @@ package com.assignment1.ai;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import com.assignment1.board.Board;
 import com.assignment1.player.Player;
@@ -17,9 +18,12 @@ public class RuleEvaluator {
     private List<ValueRule> valueRules;
     private List<ConstraintRule> constraintRules;
 
+    private final Random random;
+
     public RuleEvaluator() {
         this.valueRules = new ArrayList<>();
         this.constraintRules = new ArrayList<>();
+        this.random = new Random();
 
         // Add value rules
         valueRules.add(new com.assignment1.ai.rules.VictoryPointRule());
@@ -50,19 +54,28 @@ public class RuleEvaluator {
             return Optional.of(bestConstraint);
         }
 
-        // Evaluate value rules
-        Rule bestRule = null;
+        // Evaluate value rules: randomly choosing from applicable rules if tied
+        List<ValueRule> tiedBest = new ArrayList<>();
         double bestValue = -1;
         for (ValueRule rule : valueRules) {
             if (rule.canApply(player, board)) {
                 double value = rule.evaluate(player, board);
                 if (value > bestValue) {
                     bestValue = value;
-                    bestRule = rule;
+                    tiedBest.clear();
+                    tiedBest.add(rule);
+                } else if (value == bestValue) {
+                    tiedBest.add(rule);
                 }
             }
         }
-        return Optional.ofNullable(bestRule);
+        if (tiedBest.isEmpty()) { // no applicable rules
+            return Optional.empty();
+        }
+        if (tiedBest.size() == 1) { // only one applicable rule
+            return Optional.of(tiedBest.get(0));
+        }
+        return Optional.of(tiedBest.get(random.nextInt(tiedBest.size())));
     }
 
     public List<Rule> getAll() {
