@@ -1,15 +1,12 @@
 package com.assignment1.ai;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+
 import com.assignment1.board.Board;
 import com.assignment1.player.Player;
-
-import com.assignment1.ai.rules.ExcessCardsConstraint;
-import com.assignment1.ai.rules.LongestRoadDefenseConstraint;
-import com.assignment1.ai.rules.RoadConnectionConstraint;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Optional;
 
 /**
  * Evaluates the rules and returns the best rule to apply.
@@ -21,23 +18,64 @@ public class RuleEvaluator {
     private List<ValueRule> valueRules;
     private List<ConstraintRule> constraintRules;
 
+    private final Random random;
+
     public RuleEvaluator() {
         this.valueRules = new ArrayList<>();
         this.constraintRules = new ArrayList<>();
-        
-        this.constraintRules.add(new ExcessCardsConstraint());
-        this.constraintRules.add(new RoadConnectionConstraint());
-        this.constraintRules.add(new LongestRoadDefenseConstraint());
+        this.random = new Random();
+
+        // Add value rules
+        valueRules.add(new com.assignment1.ai.rules.VictoryPointRule());
+        valueRules.add(new com.assignment1.ai.rules.BuildRule());
+        valueRules.add(new com.assignment1.ai.rules.SpendRule());
+
+        // Constraints 
+        constraintRules.add(new com.assignment1.ai.rules.ExcessCardsConstraint());
+        constraintRules.add(new com.assignment1.ai.rules.RoadConnectionConstraint());
+        constraintRules.add(new com.assignment1.ai.rules.LongestRoadDefenseConstraint());
     }
 
     public Optional<Rule> evaluate(Player player, Board board) {
+        // Check constraints first
+        Rule bestConstraint = null;
+        double highestPriority = -1;
         for (ConstraintRule constraint : constraintRules) {
-            if (constraint.evaluate(player, board) > 0.0) {
-                return Optional.of(constraint);
+            if (constraint.canApply(player, board)) {
+                double priority = constraint.evaluate(player, board);
+
+                if (priority > highestPriority) {
+                    highestPriority = priority;
+                    bestConstraint = constraint;
+                }
             }
         }
-        
-        return Optional.empty();
+        if (bestConstraint != null && highestPriority > 0) {
+            return Optional.of(bestConstraint);
+        }
+
+        // Evaluate value rules: randomly choosing from applicable rules if tied
+        List<ValueRule> tiedBest = new ArrayList<>();
+        double bestValue = -1;
+        for (ValueRule rule : valueRules) {
+            if (rule.canApply(player, board)) {
+                double value = rule.evaluate(player, board);
+                if (value > bestValue) {
+                    bestValue = value;
+                    tiedBest.clear();
+                    tiedBest.add(rule);
+                } else if (value == bestValue) {
+                    tiedBest.add(rule);
+                }
+            }
+        }
+        if (tiedBest.isEmpty()) { // no applicable rules
+            return Optional.empty();
+        }
+        if (tiedBest.size() == 1) { // only one applicable rule
+            return Optional.of(tiedBest.get(0));
+        }
+        return Optional.of(tiedBest.get(random.nextInt(tiedBest.size())));
     }
 
     public List<Rule> getAll() {
@@ -46,5 +84,4 @@ public class RuleEvaluator {
         all.addAll(valueRules);
         return all;
     }
-    
 }
