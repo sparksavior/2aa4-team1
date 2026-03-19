@@ -1,17 +1,17 @@
 package com.assignment1.player;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.board.Path;
 import com.assignment1.enums.PlayerColor;
 import com.assignment1.enums.ResourceType;
+import com.assignment1.pieces.Building;
 import com.assignment1.pieces.City;
 import com.assignment1.pieces.Road;
 import com.assignment1.pieces.Settlement;
-import com.assignment1.pieces.Building;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /** Represents a player with resources, buildings, and agent behavior. */
 public abstract class Player {
@@ -121,6 +121,9 @@ public abstract class Player {
         return total;
     }
 
+    public int getTotalCardsPublic() {
+        return getTotalCards();
+    }
 
     public boolean buildRoad(Board board, Path path) {
         if (path.getOccupant() != null) return false;

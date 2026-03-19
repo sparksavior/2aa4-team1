@@ -2,6 +2,7 @@ package com.assignment1.ai.rules;
 
 import com.assignment1.ai.ValueRule;
 import com.assignment1.board.Board;
+import com.assignment1.board.Path;
 import com.assignment1.player.Player;
 
 /**
@@ -12,17 +13,25 @@ public class SpendRule extends ValueRule {
 
     @Override
     public double evaluate(Player player, Board board) {
-        // TODO: Implement evaluation logic
-        return VALUE;
+        return canApply(player, board) ? VALUE : 0.0;
     }
 
     @Override
     public boolean canApply(Player player, Board board) {
-        return true;
+        return player.getTotalCardsPublic() > 5;
     }
 
     @Override
     public String apply(Player player, Board board) {
-        return "spend cards";
+        for (Path p : board.getPaths()) {
+            if (p.getOccupant() == null) {
+                if (player.buildRoad(board, p)) {
+                    if (player.getTotalCardsPublic() < 5) {
+                        return "spend to reduce cards";
+                    }
+                }
+            }
+        }
+        return "no-op";
     }
 }

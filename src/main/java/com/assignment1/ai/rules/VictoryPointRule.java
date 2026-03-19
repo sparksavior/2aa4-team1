@@ -16,13 +16,26 @@ public class VictoryPointRule extends ValueRule {
 
     @Override
     public double evaluate(Player player, Board board) {
-        // TODO: Implement evaluation logic
-        return VALUE;
+        return canApply(player, board) ? VALUE : 0.0;
     }
 
     @Override
     public boolean canApply(Player player, Board board) {
-        return true; // keep simple
+        // Check if can upgrade city
+        for (Intersection intersection : board.getIntersections()) {
+            Building b = intersection.getOccupant();
+
+            if (b instanceof Settlement && b.getOwner() == player) {
+                return true;
+            }
+        }
+        // Check if can build settlement
+        for (Intersection intersection : board.getIntersections()) {
+            if (intersection.getOccupant() == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

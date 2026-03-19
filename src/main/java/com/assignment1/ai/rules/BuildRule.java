@@ -15,13 +15,17 @@ public class BuildRule extends ValueRule {
 
     @Override
     public double evaluate(Player player, Board board) {
-        // TODO: Implement evaluation logic
-        return VALUE;
+        return canApply(player, board) ? VALUE : 0.0;
     }
 
     @Override
     public boolean canApply(Player player, Board board) {
-        return true;
+        for (Path p : board.getPaths()) {
+            if (p.getOccupant() == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
