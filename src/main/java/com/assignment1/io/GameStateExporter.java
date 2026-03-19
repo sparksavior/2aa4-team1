@@ -11,6 +11,7 @@ import com.assignment1.board.Board;
 import com.assignment1.board.Intersection;
 import com.assignment1.board.Path;
 import com.assignment1.pieces.City;
+import com.assignment1.observer.Observer;
 
 /**
  * GameStateExporter is responsible for exporting the current
@@ -24,7 +25,7 @@ import com.assignment1.pieces.City;
  * This file is updated after each game action so that the
  * visualizer can render the board state in real time.
  */
-public class GameStateExporter {
+public class GameStateExporter implements Observer {
 
     /** Path to the JSON file that the visualizer reads */
     private final String outputPath;
@@ -34,7 +35,7 @@ public class GameStateExporter {
     }
 
     // Exports the current board state into JSON format
-    public void export(Board board) {
+    private void export(Board board) {
         try {
             java.nio.file.Path filePath = Paths.get(outputPath);
             
@@ -108,5 +109,14 @@ public class GameStateExporter {
         } catch (IOException e) {
             System.err.println("Error exporting game state to " + outputPath + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Called when the subject notifies observers.
+     * @param board current board state
+     */
+    @Override
+    public void update(Board board) {
+        export(board);
     }
 }

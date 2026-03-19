@@ -6,6 +6,8 @@ import com.assignment1.enums.TerrainType;
 import com.assignment1.pieces.Building;
 import com.assignment1.pieces.Road;
 import com.assignment1.player.Player;
+import com.assignment1.observer.Observer;
+import com.assignment1.observer.Subject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 /** Manages the game board: tiles, intersections, paths, and placement validation. */
-public class Board {
+public class Board implements Subject {
 
     private List<Tile> tiles;
     private List<Intersection> intersections;
@@ -24,6 +26,7 @@ public class Board {
     private Map<Integer, List<Tile>> tilesByProductionNumber;
     private Map<Intersection, List<Path>> pathsByIntersection;
     private Robber robber;
+    private final Set<Observer> observers = new HashSet<>();
 
     /** Creates a new board with the given configuration. */
     public Board(GameConfig config) {
@@ -228,6 +231,29 @@ public class Board {
     /* Returns all tiles on the board. */
     public List<Tile> getTiles() {
         return tiles;
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        if (observer == null) {
+            return;
+        }
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        if (observer == null) {
+            return;
+        }
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(this);
+        }
     }
 
     /** Validates road placement: path must connect to player's existing road or building. */

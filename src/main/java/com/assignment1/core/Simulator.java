@@ -55,6 +55,7 @@ public class Simulator {
         this.random = new Random();
         this.scanner = new Scanner(System.in);
         this.exporter = new GameStateExporter("visualize/state.json");
+        this.board.addObserver(this.exporter);
     }
 
     /** Runs the simulation until termination conditions are met. */
@@ -63,7 +64,7 @@ public class Simulator {
         board.setup();
         createPlayers();
 
-        exporter.export(board);
+        board.notifyObservers();
 
         currentRound = 1;
         while (!isFinished()) {
@@ -127,7 +128,7 @@ public class Simulator {
         System.out.println("Total roads: " + board.getPaths().stream().filter(p -> p.getOccupant() != null).count());
         System.out.println("Total buildings: " + board.getIntersections().stream().filter(i -> i.getOccupant() != null).count());
 
-        exporter.export(board);
+        board.notifyObservers();
     }
 
     /** Returns the index of the player currently taking their turn. */
