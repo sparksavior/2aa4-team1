@@ -19,6 +19,15 @@ public class ComputerPlayer extends Player {
         this.evaluator = evaluator;
     }
 
+    /**
+     * Creates a computer player with a dedicated RuleEvaluator (for unit testing)
+     * @param id
+     * @param color
+     */
+    public ComputerPlayer(int id, PlayerColor color) {
+        this(id, color, new RuleEvaluator());
+    }
+
     // Creates a computer player with an initial settlement at the given intersection.
     public ComputerPlayer(int id, PlayerColor color, Intersection initialSettlement, RuleEvaluator evaluator) {
         super(id, color, initialSettlement);
@@ -28,12 +37,11 @@ public class ComputerPlayer extends Player {
     // Agent behavior: attempts to build when holding more than 7 cards.
     @Override
     public String makeMove(Board board) {
-        // evaluator should be injected by Simulator, if not, create a new one
-        if (evaluator == null) {
-            evaluator = new RuleEvaluator();
+        if (this.evaluator == null) {
+            this.evaluator = new RuleEvaluator();
         }
 
-        Optional<Rule> rule = evaluator.evaluate(this, board);
+        Optional<Rule> rule = this.evaluator.evaluate(this, board);
         if (rule.isPresent()) {
             return rule.get().apply(this, board);
         }
