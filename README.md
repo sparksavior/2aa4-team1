@@ -5,7 +5,7 @@
 
 ## Overview
 
-This repository contains the implementation of a Settlers of Catan simulator, developed across Assignment 1 and Assignment 2. The simulator supports both automated agent gameplay and human player interaction with real-time visualization.
+This repository contains the implementation of a Settlers of Catan simulator, developed across Assignments 1–3. The simulator supports both automated agent gameplay and human player interaction with real-time visualization, undo/redo for human commands, rule-based computer AI, and an Observer-based export pipeline for visualization.
 
 ## Project Structure
 
@@ -17,7 +17,7 @@ This repository contains the implementation of a Settlers of Catan simulator, de
 │   ├── papyrus/             # Code generated from Papyrus model (A1 Task 2)
 │   └── genai/               # Code generated from GenAI (A1 Task 3)
 ├── src/                     # Manual implementation
-│   ├── main/java/           # Java source code
+│   ├── main/java/           # Java source code (board, players, commands, ai/, observer/, io/)
 │   └── test/java/           # Unit tests
 ├── docs/
 │   ├── figures/             # Exported UML diagrams
@@ -54,6 +54,12 @@ This repository contains the implementation of a Settlers of Catan simulator, de
 - **R2.5:** Robber mechanism (discard, placement, resource stealing on dice roll 7)
 - **R2.6:** Enhanced Demonstrator class with detailed documentation
 
+### Assignment 3 Requirements
+- **R3.1:** Undo/redo functionality (Command pattern with history)
+- **R3.2:** Rule-based machine intelligence — value rules (1.0 VP, 0.8 non-VP build, 0.5 spend so fewer than 5 cards remain); ties broken randomly among applicable rules at the same value
+- **R3.3:** Constraint-based priorities — must resolve before value rules: excess cards (>7, must spend), road connection (segments at most two units apart), longest-road defense
+- **Task 3 (design pattern):** Observer pattern — `Board` as subject, `GameStateExporter` as observer; `Simulator` notifies after setup and after each player turn
+
 ## Code Quality
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=sparksavior_2aa4-team1)](https://sonarcloud.io/summary/new_code?id=sparksavior_2aa4-team1)
@@ -86,7 +92,7 @@ turns: 100
 
 ### Visualization
 
-The game state is automatically exported to `visualize/state.json` after each action. To view the board:
+The game state is exported to `visualize/state.json` via the Observer pattern (`Board.notifyObservers()` triggers `GameStateExporter`) after initial setup and after each player action. To view the board:
 
 1. Run the Java simulator (it will update `visualize/state.json`)
 2. In a separate terminal, run:
@@ -120,12 +126,13 @@ When enabled, the game pauses after each computer player's turn. Enter "go" to p
 - **Task 2:** Design evolution (UML updates, automata model)
 - **Task 3:** Code evolution (R2.1–R2.6 implementation)
 
+### Assignment 3
+- **Task 1:** Undo/redo (Command pattern extension)
+- **Task 2:** Rule-based AI (Strategy + constraints / chain-style evaluation; `RuleEvaluator`, value rules, constraint rules)
+- **Task 3:** Third design pattern (Observer for visualization export) + reflection
+
 ## Team Workflow
 
 - **Kanban Board:** [GitHub Projects](https://github.com/users/sparksavior/projects/3)
 - **Issues:** All work tracked via GitHub Issues
 - **PRs:** All changes via Pull Requests with "Closes #X" linking
-
-## Key Design Decisions
-
-See the pinned issue: [A1 Decisions & Notes](https://github.com/sparksavior/2aa4-team1/issues/7)
